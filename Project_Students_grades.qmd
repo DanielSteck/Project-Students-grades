@@ -200,6 +200,17 @@ SELECT
 FROM exams_sql;
 ```
 
+How many observations are available for each parent_education
+
+```{sql connection=con}
+
+SELECT parent_education,
+  COUNT(parent_education) AS amount_of_observations
+FROM exams_sql
+GROUP BY parent_education
+ORDER BY amount_of_observations DESC;
+```
+
 How many students have a math score above 80?
 
 ```{sql connection=con}
@@ -217,6 +228,94 @@ Have a look at the obervations of students with more than 90 in reading score
 SELECT *
 FROM exams_sql
 WHERE reading_score >90;
+
+```
+
+Check the obervations of all females with more than 90 in writing score. The result shall be ordered by writing score (decreasing)
+
+```{sql connection=con}
+
+SELECT*
+FROM exams_sql
+WHERE gender ="female" AND writing_score>90
+ORDER BY writing_score DESC;
+
+```
+
+Check all observations of students with more than 90% in one of the exams and made NO prep_course
+
+```{sql connection=con}
+SELECT *
+FROM exams_sql
+WHERE prep_course = "none" AND (math_score>90 OR writing_score>90 OR reading_score>90);
+
+```
+
+What are the average exam scores of the different ethnicies?
+
+```{sql connection=con}
+SELECT ethnicity,
+  AVG(math_score) as avg_math,
+  AVG(reading_score) as avg_read,
+  AVG(writing_score) as avg_write
+FROM exams_sql
+GROUP BY ethnicity;
+```
+
+What are the best exam scores?
+
+```{sql connection=con}
+
+SELECT 
+  MAX(math_score) as max_math,
+  MAX(reading_score) as max_read,
+  MAX(writing_score) as max_write
+FROM exams_sql;
+```
+
+What are the worst exam scores?
+
+```{sql connection=con}
+
+SELECT 
+  MIN(math_score) as min_math,
+  MIN(reading_score) as min_read,
+  MIN(writing_score) as min_write
+FROM exams_sql;
+```
+
+What are the average exam scores for the genders?
+
+```{sql connection=con}
+
+SELECT gender,
+  (AVG(math_score) + AVG(reading_score) + AVG(writing_score)) /3 as avg_exams_score
+FROM exams_sql
+GROUP BY gender;
+```
+
+Show all obervations which are parents_education "high_school" and have an average score in exams between 80 and 90. Result shall be ordered descending by avg_exam_score
+
+```{sql connection=con}
+
+SELECT gender, ethnicity, parent_education, lunch, prep_course,
+  (math_score + reading_score + writing_score) /3 as avg_exams_score
+FROM exams_sql
+WHERE parent_education = "high school" AND avg_exams_score BETWEEN 80 AND 90;
+```
+
+Show all male ethnicities which have an average_exams score less than 70. Order the avg_exams_score ascending.
+
+```{sql connection=con}
+
+SELECT ethnicity,
+  (AVG(math_score) + AVG(reading_score) + AVG(writing_score)) /3 as avg_exams_score
+FROM exams_sql
+WHERE gender="male"
+GROUP BY ethnicity
+HAVING avg_exams_score < 70
+ORDER BY avg_exams_score;
+  
 
 ```
 
