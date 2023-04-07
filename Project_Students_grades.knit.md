@@ -1,7 +1,15 @@
 ---
 title: "Project_student_grades"
+subtitle: "Programming languages for Data Science"
+author: "Daniel Steck"
+date: "04.07.2023"
 format: html
 editor: visual
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
 ---
 
 
