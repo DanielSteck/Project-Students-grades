@@ -321,6 +321,10 @@ ORDER BY avg_exams_score;
 
 ## Data ingestion
 
+### Data Import
+
+First of all the data will be imported
+
 ```{r read_csv}
 
 library(tidyverse)
@@ -331,7 +335,181 @@ exams <- read_csv(path, show_col_types = FALSE)
 
 ```
 
+### Clean Data
+
+Lets have a look on the first rows to get an expression of the data
+
+```{r first_rows}
+
+exams %>%
+  slice(1:5)
+  
+
+```
+
+Before further steps can be made, the columns names need to be corrected, als they are including spaces and special characters. To remove those, the janitor package will be used.
+
+```{r janitor}
+library(janitor)
+exams <- exams %>%
+  clean_names()
+```
+
+Beside the cleaning of the names, some variables shall be renamed in order to shorten the length.
+
+```{r rename_columns}
+exams <- rename(exams, ethnic_group = race_ethnicity)
+exams <- rename(exams, parent_education = parental_level_of_education)
+exams <- rename(exams, test_prep = test_preparation_course)
+```
+
+The available data consist of `r nrow(exams)`. The available features are `r names(exams)`.
+
+### Missing data
+
+Lets have a look on the description of the data to check the formats.
+
+```{r glimpse}
+glimpse (exams)
+```
+Are there any missing data? lets check it:
+
+```{r missing_values_graphic}
+library(visdat)
+vis_dat(exams)
+```
+
+Alternative method for missing data:
+
+```{r missing_values_num}
+is.na(exams) %>% colSums()
+```
+
+There are no missing numbers in the dataset. Three variables (scores in the exam) are numeric, the other variables are characters.
+
+### Format data
+
+Lets have a look on the character columns and check if they should be formatted as factor.
+
+```{r levels_gender}
+exams %>%
+  count(gender,
+        sort = TRUE)
+```
+
+```{r levels_ethnic_group}
+exams %>%
+  count(ethnic_group,
+        sort = TRUE)
+```
+
+```{r levels_parent_education}
+exams %>%
+  count(parent_education,
+        sort = TRUE)
+```
+```{r levels_lunch}
+exams %>%
+  count(lunch,
+        sort = TRUE)
+```
+```{r levels_test_prep}
+exams %>%
+  count(test_prep,
+        sort = TRUE)
+```
+All character variables are having only a small amount of different levels. Therefore all character variables shall be transferred as factor.
+
+```{r char_to_factor}
+exams <- 
+  exams %>% 
+  mutate(across(where(is.character), as.factor))
+```
+
+### Create new variables
+
+Target of this project is to predict the students performance on exams. Therefore an additional column shall be added. This column shall include the average exam score of the students.
+
+```{r new_column_avg_score}
+exams <- exams%>%
+  mutate (avg_score = (math_score + reading_score + writing_score)/3)
+```
+
+As all other variables are not numeric, no further new variables can be created.
+
+### Data overview
+
+After succesfully cleaning, formatting and checking the data, lets have an overview of the data with the package *skimr*: 
+
+```{r skimr}
+library(skimr)
+skim(exams)
+```
+**beschreiben!**
+
+### Define features and outcome variable
+
+In advance of the data splitting the definition of the target variable and the feature variables shall be made.
+
+The performance in the exams shall be predicted, for this the average performance is sufficient. As the target is to predict the performance, the variables for math, reading and writing score must not be included into the feature list.
+
+```{r outcome_and_features}
+y_label <- 'avg_score'
+features <- c('gender', 'ethnic_group', 'parent_education', 'lunch', 'test_prep')
+X <- exams %>%
+  select(all_of(features))
+y <- exams %>%
+  select(all_of(y_label))
+```
+
+
 ## Data splitting
+
+Before the data exploration can be started, the data shall be splitted into a training and test set.
+
+To ensure that the training and test set is representative of the various categories of `avg_score` in the whole dataset, lets have a look on the histogram
+
+```{r bins_target_variable}
+exams %>%
+  ggplot(aes(avg_score)) + 
+  geom_histogram (bins=6) #tested several, 6 makes most sense 
+
+```
+
+The splitted data shall included equally data from each of the bins.In order the have the same results for each run, a fix seed is set.
+
+Target is to have 80% of the data for training and 20% for testing.
+
+```{r train_test_split}
+library(rsample)
+
+set.seed(50) #for reproducability
+
+# split in train and test data
+data_split <- initial_split (exams,
+                             prop =4/5,
+                             strat = avg_score,
+                             breaks = 6)
+
+# Create train dataframe
+train_data <- training(data_split)
+
+#create test data set
+test_data <- testing(data_split)
+```
+
+Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data.
+
+```{r validation_set}
+set.seed(12)
+
+cv_folds <- 
+  vfold_cv(train_data,
+           v=5,
+           strata = y_label,
+           breaks = 6)
+```
+
 
 ## Analyze data
 

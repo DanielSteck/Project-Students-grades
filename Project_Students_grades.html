@@ -1738,6 +1738,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="data-ingestion" class="level2">
 <h2 class="anchored" data-anchor-id="data-ingestion">Data ingestion</h2>
+<section id="data-import" class="level3">
+<h3 class="anchored" data-anchor-id="data-import">Data Import</h3>
+<p>First of all the data will be imported</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -1749,8 +1752,497 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </details>
 </div>
 </section>
+<section id="clean-data" class="level3">
+<h3 class="anchored" data-anchor-id="clean-data">Clean Data</h3>
+<p>Lets have a look on the first rows to get an expression of the data</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 8
+  gender `race/ethnicity` parental level of educa…¹ lunch test preparation cou…²
+  &lt;chr&gt;  &lt;chr&gt;            &lt;chr&gt;                     &lt;chr&gt; &lt;chr&gt;                 
+1 female group D          some college              stan… completed             
+2 male   group D          associate's degree        stan… none                  
+3 female group D          some college              free… none                  
+4 male   group B          some college              free… none                  
+5 female group D          associate's degree        stan… none                  
+# ℹ abbreviated names: ¹​`parental level of education`,
+#   ²​`test preparation course`
+# ℹ 3 more variables: `math score` &lt;dbl&gt;, `reading score` &lt;dbl&gt;,
+#   `writing score` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Before further steps can be made, the columns names need to be corrected, als they are including spaces and special characters. To remove those, the janitor package will be used.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attache Paket: 'janitor'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Die folgenden Objekte sind maskiert von 'package:stats':
+
+    chisq.test, fisher.test</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> exams <span class="sc">%&gt;%</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Beside the cleaning of the names, some variables shall be renamed in order to shorten the length.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">rename</span>(exams, <span class="at">ethnic_group =</span> race_ethnicity)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">rename</span>(exams, <span class="at">parent_education =</span> parental_level_of_education)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">rename</span>(exams, <span class="at">test_prep =</span> test_preparation_course)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The available data consist of 1000. The available features are gender, ethnic_group, parent_education, lunch, test_prep, math_score, reading_score, writing_score.</p>
+</section>
+<section id="missing-data" class="level3">
+<h3 class="anchored" data-anchor-id="missing-data">Missing data</h3>
+<p>Lets have a look on the description of the data to check the formats.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span> (exams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 1,000
+Columns: 8
+$ gender           &lt;chr&gt; "female", "male", "female", "male", "female", "male",…
+$ ethnic_group     &lt;chr&gt; "group D", "group D", "group D", "group B", "group D"…
+$ parent_education &lt;chr&gt; "some college", "associate's degree", "some college",…
+$ lunch            &lt;chr&gt; "standard", "standard", "free/reduced", "free/reduced…
+$ test_prep        &lt;chr&gt; "completed", "none", "none", "none", "none", "none", …
+$ math_score       &lt;dbl&gt; 59, 96, 57, 70, 83, 68, 82, 46, 80, 57, 74, 53, 76, 7…
+$ reading_score    &lt;dbl&gt; 70, 93, 76, 70, 85, 57, 83, 61, 75, 69, 69, 50, 74, 7…
+$ writing_score    &lt;dbl&gt; 78, 87, 77, 63, 86, 54, 80, 58, 73, 77, 69, 49, 76, 7…</code></pre>
+</div>
+</div>
+<p>Are there any missing data? lets check it:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visdat)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">vis_dat</span>(exams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Project_Students_grades_files/figure-html/missing_values_graphic-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Alternative method for missing data:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">is.na</span>(exams) <span class="sc">%&gt;%</span> <span class="fu">colSums</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>          gender     ethnic_group parent_education            lunch 
+               0                0                0                0 
+       test_prep       math_score    reading_score    writing_score 
+               0                0                0                0 </code></pre>
+</div>
+</div>
+<p>There are no missing numbers in the dataset. Three variables (scores in the exam) are numeric, the other variables are characters.</p>
+</section>
+<section id="format-data" class="level3">
+<h3 class="anchored" data-anchor-id="format-data">Format data</h3>
+<p>Lets have a look on the character columns and check if they should be formatted as factor.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(gender,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  gender     n
+  &lt;chr&gt;  &lt;int&gt;
+1 male     508
+2 female   492</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(ethnic_group,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  ethnic_group     n
+  &lt;chr&gt;        &lt;int&gt;
+1 group C        323
+2 group D        257
+3 group B        198
+4 group E        143
+5 group A         79</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(parent_education,</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+  parent_education       n
+  &lt;chr&gt;              &lt;int&gt;
+1 some college         224
+2 high school          215
+3 associate's degree   204
+4 some high school     177
+5 bachelor's degree    105
+6 master's degree       75</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(lunch,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  lunch            n
+  &lt;chr&gt;        &lt;int&gt;
+1 standard       660
+2 free/reduced   340</code></pre>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(test_prep,</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  test_prep     n
+  &lt;chr&gt;     &lt;int&gt;
+1 none        656
+2 completed   344</code></pre>
+</div>
+</div>
+<p>All character variables are having only a small amount of different levels. Therefore all character variables shall be transferred as factor.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  exams <span class="sc">%&gt;%</span> </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.character), as.factor))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="create-new-variables" class="level3">
+<h3 class="anchored" data-anchor-id="create-new-variables">Create new variables</h3>
+<p>Target of this project is to predict the students performance on exams. Therefore an additional column shall be added. This column shall include the average exam score of the students.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> exams<span class="sc">%&gt;%</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">avg_score =</span> (math_score <span class="sc">+</span> reading_score <span class="sc">+</span> writing_score)<span class="sc">/</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>As all other variables are not numeric, no further new variables can be created.</p>
+</section>
+<section id="data-overview" class="level3">
+<h3 class="anchored" data-anchor-id="data-overview">Data overview</h3>
+<p>After succesfully cleaning, formatting and checking the data, lets have an overview of the data with the package <em>skimr</em>:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(exams)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">exams</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">1000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">factor</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: factor</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 9%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">ordered</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: left;">top_counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">gender</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">mal: 508, fem: 492</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ethnic_group</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">gro: 323, gro: 257, gro: 198, gro: 143</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">parent_education</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">som: 224, hig: 215, ass: 204, som: 177</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lunch</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">sta: 660, fre: 340</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">test_prep</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">non: 656, com: 344</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 3%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 7%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">math_score</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">67.81</td>
+<td style="text-align: right;">15.25</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">58.00</td>
+<td style="text-align: right;">68.00</td>
+<td style="text-align: right;">79.25</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">▁▂▇▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">reading_score</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">70.38</td>
+<td style="text-align: right;">14.11</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">61.00</td>
+<td style="text-align: right;">70.50</td>
+<td style="text-align: right;">80.00</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">▁▃▇▇▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">writing_score</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">69.14</td>
+<td style="text-align: right;">15.03</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">59.00</td>
+<td style="text-align: right;">70.00</td>
+<td style="text-align: right;">80.00</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">▁▂▆▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">avg_score</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">69.11</td>
+<td style="text-align: right;">14.03</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">59.58</td>
+<td style="text-align: right;">69.67</td>
+<td style="text-align: right;">79.33</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: left;">▁▂▇▇▃</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>beschreiben!</strong></p>
+</section>
+<section id="define-features-and-outcome-variable" class="level3">
+<h3 class="anchored" data-anchor-id="define-features-and-outcome-variable">Define features and outcome variable</h3>
+<p>In advance of the data splitting the definition of the target variable and the feature variables shall be made.</p>
+<p>The performance in the exams shall be predicted, for this the average performance is sufficient. As the target is to predict the performance, the variables for math, reading and writing score must not be included into the feature list.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>y_label <span class="ot">&lt;-</span> <span class="st">'avg_score'</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>features <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'gender'</span>, <span class="st">'ethnic_group'</span>, <span class="st">'parent_education'</span>, <span class="st">'lunch'</span>, <span class="st">'test_prep'</span>)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> exams <span class="sc">%&gt;%</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(features))</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> exams <span class="sc">%&gt;%</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(y_label))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
 <section id="data-splitting" class="level2">
 <h2 class="anchored" data-anchor-id="data-splitting">Data splitting</h2>
+<p>Before the data exploration can be started, the data shall be splitted into a training and test set.</p>
+<p>To ensure that the training and test set is representative of the various categories of <code>avg_score</code> in the whole dataset, lets have a look on the histogram</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(avg_score)) <span class="sc">+</span> </span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span> (<span class="at">bins=</span><span class="dv">6</span>) <span class="co">#tested several, 6 makes most sense </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="Project_Students_grades_files/figure-html/bins_target_variable-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The splitted data shall included equally data from each of the bins.In order the have the same results for each run, a fix seed is set.</p>
+<p>Target is to have 80% of the data for training and 20% for testing.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">50</span>) <span class="co">#for reproducability</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="co"># split in train and test data</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span> (exams,</span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a>                             <span class="at">prop =</span><span class="dv">4</span><span class="sc">/</span><span class="dv">5</span>,</span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>                             <span class="at">strat =</span> avg_score,</span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>                             <span class="at">breaks =</span> <span class="dv">6</span>)</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create train dataframe</span></span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> <span class="fu">training</span>(data_split)</span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a><span class="co">#create test data set</span></span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> <span class="fu">testing</span>(data_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>cv_folds <span class="ot">&lt;-</span> </span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vfold_cv</span>(train_data,</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">v=</span><span class="dv">5</span>,</span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">strata =</span> y_label,</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">breaks =</span> <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using an external vector in selections was deprecated in tidyselect 1.1.0.
+ℹ Please use `all_of()` or `any_of()` instead.
+  # Was:
+  data %&gt;% select(y_label)
+
+  # Now:
+  data %&gt;% select(all_of(y_label))
+
+See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</code></pre>
+</div>
+</div>
 </section>
 <section id="analyze-data" class="level2">
 <h2 class="anchored" data-anchor-id="analyze-data">Analyze data</h2>
@@ -1981,366 +2473,544 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb36" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Project_student_grades"</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Programming languages for Data Science"</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Daniel Steck"</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "04.07.2023"</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a><span class="an">output:</span></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co">  html_document:</span></span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co">    toc_depth: 3</span></span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number_sections: true</span></span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="fu"># Academic Honesty Statement</span></span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>I, Daniel Steck, hereby state that I have not communicated with or gained information in any way from my classmates or anyone other than the Professor during this exam, and that all work is my own.</span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction</span></span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>This project was created within the modul "Programming languages for Data Science. Moreover, this project will follow the data science lifecycle, which consists of four main topics:</span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Plan</span>
-<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Data</span>
-<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Model</span>
-<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Deployment</span>
-<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a>The main focus within this project will be on the **Deployment** part.</span>
-<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a><span class="al">![Data Science Lifecycle](Images/Data_Science_lifecycle.PNG)</span></span>
-<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a><span class="fu"># Plan</span></span>
-<span id="cb36-38"><a href="#cb36-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-39"><a href="#cb36-39" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identify use case</span></span>
-<span id="cb36-40"><a href="#cb36-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-41"><a href="#cb36-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Frame the problem</span></span>
-<span id="cb36-42"><a href="#cb36-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-43"><a href="#cb36-43" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identify variables</span></span>
-<span id="cb36-44"><a href="#cb36-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-45"><a href="#cb36-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Define metrics</span></span>
-<span id="cb36-46"><a href="#cb36-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-47"><a href="#cb36-47" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data</span></span>
-<span id="cb36-48"><a href="#cb36-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-49"><a href="#cb36-49" aria-hidden="true" tabindex="-1"></a>Within this chapter the data will be ingested and analyzed. Furthermore the data is also added into a SQL database and will be used for making queries.</span>
-<span id="cb36-50"><a href="#cb36-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-51"><a href="#cb36-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## SQL data analysis</span></span>
-<span id="cb36-52"><a href="#cb36-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-53"><a href="#cb36-53" aria-hidden="true" tabindex="-1"></a>Before the steps of the data science lifecycle are made, some SQL queries will be made on the data, in order to answer questions from our costumers.</span>
-<span id="cb36-54"><a href="#cb36-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-55"><a href="#cb36-55" aria-hidden="true" tabindex="-1"></a>First the DBI library is loaded and afterwards the data is added into the database.</span>
-<span id="cb36-56"><a href="#cb36-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-57"><a href="#cb36-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{r import_SQL_librarys}</span></span>
-<span id="cb36-58"><a href="#cb36-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-59"><a href="#cb36-59" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (DBI)</span>
-<span id="cb36-60"><a href="#cb36-60" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb36-61"><a href="#cb36-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-62"><a href="#cb36-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-63"><a href="#cb36-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-64"><a href="#cb36-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{r database_connection}</span></span>
-<span id="cb36-65"><a href="#cb36-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-66"><a href="#cb36-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Connection to database </span></span>
-<span id="cb36-67"><a href="#cb36-67" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(), <span class="st">":memory:"</span>)</span>
-<span id="cb36-68"><a href="#cb36-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-69"><a href="#cb36-69" aria-hidden="true" tabindex="-1"></a>path_sql <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"</span></span>
-<span id="cb36-70"><a href="#cb36-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-71"><a href="#cb36-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Write data "gapminder" into database</span></span>
-<span id="cb36-72"><a href="#cb36-72" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(con, <span class="st">"exams_sql"</span>, <span class="fu">read_csv</span>(path_sql, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>))</span>
-<span id="cb36-73"><a href="#cb36-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-74"><a href="#cb36-74" aria-hidden="true" tabindex="-1"></a><span class="co">#show table in database</span></span>
-<span id="cb36-75"><a href="#cb36-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-76"><a href="#cb36-76" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(con)</span>
-<span id="cb36-77"><a href="#cb36-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-78"><a href="#cb36-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-79"><a href="#cb36-79" aria-hidden="true" tabindex="-1"></a><span class="fu">### First look on the data</span></span>
-<span id="cb36-80"><a href="#cb36-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-81"><a href="#cb36-81" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-82"><a href="#cb36-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-83"><a href="#cb36-83" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
-<span id="cb36-84"><a href="#cb36-84" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-85"><a href="#cb36-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-86"><a href="#cb36-86" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-87"><a href="#cb36-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-88"><a href="#cb36-88" aria-hidden="true" tabindex="-1"></a>The dataset contains 1000 observation with eight variables. Three out of these 8 variables are the students performance on exams.</span>
-<span id="cb36-89"><a href="#cb36-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-90"><a href="#cb36-90" aria-hidden="true" tabindex="-1"></a>Show the first 10 observations:</span>
-<span id="cb36-91"><a href="#cb36-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-92"><a href="#cb36-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-93"><a href="#cb36-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-94"><a href="#cb36-94" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
-<span id="cb36-95"><a href="#cb36-95" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-96"><a href="#cb36-96" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">10</span>;</span>
-<span id="cb36-97"><a href="#cb36-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-98"><a href="#cb36-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-99"><a href="#cb36-99" aria-hidden="true" tabindex="-1"></a>It can be seen that the columns should be renamed as there are e.g. spaces included:</span>
-<span id="cb36-100"><a href="#cb36-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-101"><a href="#cb36-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-102"><a href="#cb36-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-103"><a href="#cb36-103" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
-<span id="cb36-104"><a href="#cb36-104" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"race/ethnicity"</span> <span class="kw">TO</span> ethnicity</span>
-<span id="cb36-105"><a href="#cb36-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-106"><a href="#cb36-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-107"><a href="#cb36-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-108"><a href="#cb36-108" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-109"><a href="#cb36-109" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
-<span id="cb36-110"><a href="#cb36-110" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"parental level of education"</span> <span class="kw">TO</span> parent_education</span>
-<span id="cb36-111"><a href="#cb36-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-112"><a href="#cb36-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-113"><a href="#cb36-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-114"><a href="#cb36-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-115"><a href="#cb36-115" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
-<span id="cb36-116"><a href="#cb36-116" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"test preparation course"</span> <span class="kw">TO</span> prep_course</span>
-<span id="cb36-117"><a href="#cb36-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-118"><a href="#cb36-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-119"><a href="#cb36-119" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-120"><a href="#cb36-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-121"><a href="#cb36-121" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
-<span id="cb36-122"><a href="#cb36-122" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"math score"</span> <span class="kw">TO</span> math_score</span>
-<span id="cb36-123"><a href="#cb36-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-124"><a href="#cb36-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-125"><a href="#cb36-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-126"><a href="#cb36-126" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
-<span id="cb36-127"><a href="#cb36-127" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"reading score"</span> <span class="kw">TO</span> reading_score</span>
-<span id="cb36-128"><a href="#cb36-128" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-129"><a href="#cb36-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-130"><a href="#cb36-130" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-131"><a href="#cb36-131" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
-<span id="cb36-132"><a href="#cb36-132" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"writing score"</span> <span class="kw">TO</span> writing_score;</span>
-<span id="cb36-133"><a href="#cb36-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-134"><a href="#cb36-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-135"><a href="#cb36-135" aria-hidden="true" tabindex="-1"></a>Check the renamed columns</span>
-<span id="cb36-136"><a href="#cb36-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-137"><a href="#cb36-137" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-138"><a href="#cb36-138" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
-<span id="cb36-139"><a href="#cb36-139" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-140"><a href="#cb36-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-141"><a href="#cb36-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-142"><a href="#cb36-142" aria-hidden="true" tabindex="-1"></a>Lets have a look on the gender and their performance in math.</span>
-<span id="cb36-143"><a href="#cb36-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-144"><a href="#cb36-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-145"><a href="#cb36-145" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-146"><a href="#cb36-146" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> gender, <span class="st">"math_score"</span></span>
-<span id="cb36-147"><a href="#cb36-147" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-148"><a href="#cb36-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-149"><a href="#cb36-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-150"><a href="#cb36-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data Exploration</span></span>
-<span id="cb36-151"><a href="#cb36-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-152"><a href="#cb36-152" aria-hidden="true" tabindex="-1"></a>How many different genders are in the dataset?</span>
-<span id="cb36-153"><a href="#cb36-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-154"><a href="#cb36-154" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-155"><a href="#cb36-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-156"><a href="#cb36-156" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> gender</span>
-<span id="cb36-157"><a href="#cb36-157" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-158"><a href="#cb36-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-159"><a href="#cb36-159" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-160"><a href="#cb36-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-161"><a href="#cb36-161" aria-hidden="true" tabindex="-1"></a>How many different ethnicities are in the dataset?</span>
-<span id="cb36-162"><a href="#cb36-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-163"><a href="#cb36-163" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-164"><a href="#cb36-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-165"><a href="#cb36-165" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> ethnicity</span>
-<span id="cb36-166"><a href="#cb36-166" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-167"><a href="#cb36-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-168"><a href="#cb36-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-169"><a href="#cb36-169" aria-hidden="true" tabindex="-1"></a>How many different forms of parent_education are in the dataset?</span>
-<span id="cb36-170"><a href="#cb36-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-171"><a href="#cb36-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-172"><a href="#cb36-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-173"><a href="#cb36-173" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> parent_education</span>
-<span id="cb36-174"><a href="#cb36-174" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-175"><a href="#cb36-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-176"><a href="#cb36-176" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-177"><a href="#cb36-177" aria-hidden="true" tabindex="-1"></a>How many different lunch types are in the dataset?</span>
-<span id="cb36-178"><a href="#cb36-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-179"><a href="#cb36-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-180"><a href="#cb36-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-181"><a href="#cb36-181" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> lunch</span>
-<span id="cb36-182"><a href="#cb36-182" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-183"><a href="#cb36-183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-184"><a href="#cb36-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-185"><a href="#cb36-185" aria-hidden="true" tabindex="-1"></a>How many different types of preparation courses are in the dataset?</span>
-<span id="cb36-186"><a href="#cb36-186" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-187"><a href="#cb36-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-188"><a href="#cb36-188" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-189"><a href="#cb36-189" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> prep_course</span>
-<span id="cb36-190"><a href="#cb36-190" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-191"><a href="#cb36-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-192"><a href="#cb36-192" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-193"><a href="#cb36-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-194"><a href="#cb36-194" aria-hidden="true" tabindex="-1"></a>How many observations are in the data set?</span>
-<span id="cb36-195"><a href="#cb36-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-196"><a href="#cb36-196" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-197"><a href="#cb36-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-198"><a href="#cb36-198" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
-<span id="cb36-199"><a href="#cb36-199" aria-hidden="true" tabindex="-1"></a>  <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">as</span> rows</span>
-<span id="cb36-200"><a href="#cb36-200" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-201"><a href="#cb36-201" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-202"><a href="#cb36-202" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-203"><a href="#cb36-203" aria-hidden="true" tabindex="-1"></a>How many observations are available for each parent_education</span>
-<span id="cb36-204"><a href="#cb36-204" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-205"><a href="#cb36-205" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-206"><a href="#cb36-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-207"><a href="#cb36-207" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> parent_education,</span>
-<span id="cb36-208"><a href="#cb36-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">COUNT</span>(parent_education) <span class="kw">AS</span> amount_of_observations</span>
-<span id="cb36-209"><a href="#cb36-209" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-210"><a href="#cb36-210" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> parent_education</span>
-<span id="cb36-211"><a href="#cb36-211" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> amount_of_observations <span class="kw">DESC</span>;</span>
-<span id="cb36-212"><a href="#cb36-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-213"><a href="#cb36-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-214"><a href="#cb36-214" aria-hidden="true" tabindex="-1"></a>How many students have a math score above 80?</span>
-<span id="cb36-215"><a href="#cb36-215" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-216"><a href="#cb36-216" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-217"><a href="#cb36-217" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-218"><a href="#cb36-218" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
-<span id="cb36-219"><a href="#cb36-219" aria-hidden="true" tabindex="-1"></a>  <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">as</span> students_above_math_80</span>
-<span id="cb36-220"><a href="#cb36-220" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-221"><a href="#cb36-221" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> math_score <span class="op">&gt;</span> <span class="dv">80</span>;</span>
-<span id="cb36-222"><a href="#cb36-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-223"><a href="#cb36-223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-224"><a href="#cb36-224" aria-hidden="true" tabindex="-1"></a>Have a look at the obervations of students with more than 90 in reading score</span>
-<span id="cb36-225"><a href="#cb36-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-226"><a href="#cb36-226" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-227"><a href="#cb36-227" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-228"><a href="#cb36-228" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
-<span id="cb36-229"><a href="#cb36-229" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-230"><a href="#cb36-230" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> reading_score <span class="op">&gt;</span><span class="dv">90</span>;</span>
-<span id="cb36-231"><a href="#cb36-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-232"><a href="#cb36-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-233"><a href="#cb36-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-234"><a href="#cb36-234" aria-hidden="true" tabindex="-1"></a>Check the obervations of all females with more than 90 in writing score. The result shall be ordered by writing score (decreasing)</span>
-<span id="cb36-235"><a href="#cb36-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-236"><a href="#cb36-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-237"><a href="#cb36-237" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-238"><a href="#cb36-238" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span><span class="op">*</span></span>
-<span id="cb36-239"><a href="#cb36-239" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-240"><a href="#cb36-240" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> gender <span class="op">=</span><span class="st">"female"</span> <span class="kw">AND</span> writing_score<span class="op">&gt;</span><span class="dv">90</span></span>
-<span id="cb36-241"><a href="#cb36-241" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> writing_score <span class="kw">DESC</span>;</span>
-<span id="cb36-242"><a href="#cb36-242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-243"><a href="#cb36-243" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-244"><a href="#cb36-244" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-245"><a href="#cb36-245" aria-hidden="true" tabindex="-1"></a>Check all observations of students with more than 90% in one of the exams and made NO prep_course</span>
-<span id="cb36-246"><a href="#cb36-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-247"><a href="#cb36-247" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-248"><a href="#cb36-248" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
-<span id="cb36-249"><a href="#cb36-249" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-250"><a href="#cb36-250" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> prep_course <span class="op">=</span> <span class="st">"none"</span> <span class="kw">AND</span> (math_score<span class="op">&gt;</span><span class="dv">90</span> <span class="kw">OR</span> writing_score<span class="op">&gt;</span><span class="dv">90</span> <span class="kw">OR</span> reading_score<span class="op">&gt;</span><span class="dv">90</span>);</span>
-<span id="cb36-251"><a href="#cb36-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-252"><a href="#cb36-252" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-253"><a href="#cb36-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-254"><a href="#cb36-254" aria-hidden="true" tabindex="-1"></a>What are the average exam scores of the different ethnicies?</span>
-<span id="cb36-255"><a href="#cb36-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-256"><a href="#cb36-256" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-257"><a href="#cb36-257" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> ethnicity,</span>
-<span id="cb36-258"><a href="#cb36-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">AVG</span>(math_score) <span class="kw">as</span> avg_math,</span>
-<span id="cb36-259"><a href="#cb36-259" aria-hidden="true" tabindex="-1"></a>  <span class="fu">AVG</span>(reading_score) <span class="kw">as</span> avg_read,</span>
-<span id="cb36-260"><a href="#cb36-260" aria-hidden="true" tabindex="-1"></a>  <span class="fu">AVG</span>(writing_score) <span class="kw">as</span> avg_write</span>
-<span id="cb36-261"><a href="#cb36-261" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-262"><a href="#cb36-262" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> ethnicity;</span>
-<span id="cb36-263"><a href="#cb36-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-264"><a href="#cb36-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-265"><a href="#cb36-265" aria-hidden="true" tabindex="-1"></a>What are the best exam scores?</span>
-<span id="cb36-266"><a href="#cb36-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-267"><a href="#cb36-267" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-268"><a href="#cb36-268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-269"><a href="#cb36-269" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
-<span id="cb36-270"><a href="#cb36-270" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MAX</span>(math_score) <span class="kw">as</span> max_math,</span>
-<span id="cb36-271"><a href="#cb36-271" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MAX</span>(reading_score) <span class="kw">as</span> max_read,</span>
-<span id="cb36-272"><a href="#cb36-272" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MAX</span>(writing_score) <span class="kw">as</span> max_write</span>
-<span id="cb36-273"><a href="#cb36-273" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-274"><a href="#cb36-274" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-275"><a href="#cb36-275" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-276"><a href="#cb36-276" aria-hidden="true" tabindex="-1"></a>What are the worst exam scores?</span>
-<span id="cb36-277"><a href="#cb36-277" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-278"><a href="#cb36-278" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-279"><a href="#cb36-279" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-280"><a href="#cb36-280" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
-<span id="cb36-281"><a href="#cb36-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MIN</span>(math_score) <span class="kw">as</span> min_math,</span>
-<span id="cb36-282"><a href="#cb36-282" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MIN</span>(reading_score) <span class="kw">as</span> min_read,</span>
-<span id="cb36-283"><a href="#cb36-283" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MIN</span>(writing_score) <span class="kw">as</span> min_write</span>
-<span id="cb36-284"><a href="#cb36-284" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
-<span id="cb36-285"><a href="#cb36-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-286"><a href="#cb36-286" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-287"><a href="#cb36-287" aria-hidden="true" tabindex="-1"></a>What are the average exam scores for the genders?</span>
-<span id="cb36-288"><a href="#cb36-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-289"><a href="#cb36-289" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-290"><a href="#cb36-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-291"><a href="#cb36-291" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> gender,</span>
-<span id="cb36-292"><a href="#cb36-292" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">AVG</span>(math_score) <span class="op">+</span> <span class="fu">AVG</span>(reading_score) <span class="op">+</span> <span class="fu">AVG</span>(writing_score)) <span class="op">/</span><span class="dv">3</span> <span class="kw">as</span> avg_exams_score</span>
-<span id="cb36-293"><a href="#cb36-293" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-294"><a href="#cb36-294" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> gender;</span>
-<span id="cb36-295"><a href="#cb36-295" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-296"><a href="#cb36-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-297"><a href="#cb36-297" aria-hidden="true" tabindex="-1"></a>Show all obervations which are parents_education "high_school" and have an average score in exams between 80 and 90. Result shall be ordered descending by avg_exam_score</span>
-<span id="cb36-298"><a href="#cb36-298" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-299"><a href="#cb36-299" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-300"><a href="#cb36-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-301"><a href="#cb36-301" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> gender, ethnicity, parent_education, lunch, prep_course,</span>
-<span id="cb36-302"><a href="#cb36-302" aria-hidden="true" tabindex="-1"></a>  (math_score <span class="op">+</span> reading_score <span class="op">+</span> writing_score) <span class="op">/</span><span class="dv">3</span> <span class="kw">as</span> avg_exams_score</span>
-<span id="cb36-303"><a href="#cb36-303" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-304"><a href="#cb36-304" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> parent_education <span class="op">=</span> <span class="st">"high school"</span> <span class="kw">AND</span> avg_exams_score <span class="kw">BETWEEN</span> <span class="dv">80</span> <span class="kw">AND</span> <span class="dv">90</span>;</span>
-<span id="cb36-305"><a href="#cb36-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-306"><a href="#cb36-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-307"><a href="#cb36-307" aria-hidden="true" tabindex="-1"></a>Show all male ethnicities which have an average_exams score less than 70. Order the avg_exams_score ascending.</span>
-<span id="cb36-308"><a href="#cb36-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-309"><a href="#cb36-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
-<span id="cb36-310"><a href="#cb36-310" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-311"><a href="#cb36-311" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> ethnicity,</span>
-<span id="cb36-312"><a href="#cb36-312" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">AVG</span>(math_score) <span class="op">+</span> <span class="fu">AVG</span>(reading_score) <span class="op">+</span> <span class="fu">AVG</span>(writing_score)) <span class="op">/</span><span class="dv">3</span> <span class="kw">as</span> avg_exams_score</span>
-<span id="cb36-313"><a href="#cb36-313" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
-<span id="cb36-314"><a href="#cb36-314" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> gender<span class="op">=</span><span class="st">"male"</span></span>
-<span id="cb36-315"><a href="#cb36-315" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> ethnicity</span>
-<span id="cb36-316"><a href="#cb36-316" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> avg_exams_score <span class="op">&lt;</span> <span class="dv">70</span></span>
-<span id="cb36-317"><a href="#cb36-317" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> avg_exams_score;</span>
-<span id="cb36-318"><a href="#cb36-318" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb36-319"><a href="#cb36-319" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-320"><a href="#cb36-320" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-321"><a href="#cb36-321" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-322"><a href="#cb36-322" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data ingestion</span></span>
-<span id="cb36-323"><a href="#cb36-323" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-324"><a href="#cb36-324" aria-hidden="true" tabindex="-1"></a><span class="in">```{r read_csv}</span></span>
-<span id="cb36-325"><a href="#cb36-325" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-326"><a href="#cb36-326" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb36-327"><a href="#cb36-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-328"><a href="#cb36-328" aria-hidden="true" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"</span></span>
-<span id="cb36-329"><a href="#cb36-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-330"><a href="#cb36-330" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(path, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb36-331"><a href="#cb36-331" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-332"><a href="#cb36-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb36-333"><a href="#cb36-333" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-334"><a href="#cb36-334" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data splitting</span></span>
-<span id="cb36-335"><a href="#cb36-335" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-336"><a href="#cb36-336" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analyze data</span></span>
-<span id="cb36-337"><a href="#cb36-337" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-338"><a href="#cb36-338" aria-hidden="true" tabindex="-1"></a><span class="fu">## Define schema</span></span>
-<span id="cb36-339"><a href="#cb36-339" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-340"><a href="#cb36-340" aria-hidden="true" tabindex="-1"></a><span class="fu">## Anomaly detection</span></span>
-<span id="cb36-341"><a href="#cb36-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-342"><a href="#cb36-342" aria-hidden="true" tabindex="-1"></a><span class="fu">## Feature engineering</span></span>
-<span id="cb36-343"><a href="#cb36-343" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-344"><a href="#cb36-344" aria-hidden="true" tabindex="-1"></a><span class="fu"># Model</span></span>
-<span id="cb36-345"><a href="#cb36-345" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-346"><a href="#cb36-346" aria-hidden="true" tabindex="-1"></a><span class="fu">## Select algorithm</span></span>
-<span id="cb36-347"><a href="#cb36-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-348"><a href="#cb36-348" aria-hidden="true" tabindex="-1"></a><span class="fu">## Model training &amp; tuning</span></span>
-<span id="cb36-349"><a href="#cb36-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-350"><a href="#cb36-350" aria-hidden="true" tabindex="-1"></a><span class="fu">## Evaluate model</span></span>
-<span id="cb36-351"><a href="#cb36-351" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-352"><a href="#cb36-352" aria-hidden="true" tabindex="-1"></a><span class="fu"># Deployment</span></span>
-<span id="cb36-353"><a href="#cb36-353" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-354"><a href="#cb36-354" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validate model</span></span>
-<span id="cb36-355"><a href="#cb36-355" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-356"><a href="#cb36-356" aria-hidden="true" tabindex="-1"></a><span class="fu">## Deploy model</span></span>
-<span id="cb36-357"><a href="#cb36-357" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-358"><a href="#cb36-358" aria-hidden="true" tabindex="-1"></a><span class="fu">## Serve model</span></span>
-<span id="cb36-359"><a href="#cb36-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-360"><a href="#cb36-360" aria-hidden="true" tabindex="-1"></a><span class="fu">## Monitor model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb66" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Project_student_grades"</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Programming languages for Data Science"</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Daniel Steck"</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "04.07.2023"</span></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a><span class="an">output:</span></span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a><span class="co">  html_document:</span></span>
+<span id="cb66-12"><a href="#cb66-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb66-13"><a href="#cb66-13" aria-hidden="true" tabindex="-1"></a><span class="co">    toc_depth: 3</span></span>
+<span id="cb66-14"><a href="#cb66-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number_sections: true</span></span>
+<span id="cb66-15"><a href="#cb66-15" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb66-16"><a href="#cb66-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-17"><a href="#cb66-17" aria-hidden="true" tabindex="-1"></a><span class="fu"># Academic Honesty Statement</span></span>
+<span id="cb66-18"><a href="#cb66-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-19"><a href="#cb66-19" aria-hidden="true" tabindex="-1"></a>I, Daniel Steck, hereby state that I have not communicated with or gained information in any way from my classmates or anyone other than the Professor during this exam, and that all work is my own.</span>
+<span id="cb66-20"><a href="#cb66-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-21"><a href="#cb66-21" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction</span></span>
+<span id="cb66-22"><a href="#cb66-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-23"><a href="#cb66-23" aria-hidden="true" tabindex="-1"></a>This project was created within the modul "Programming languages for Data Science. Moreover, this project will follow the data science lifecycle, which consists of four main topics:</span>
+<span id="cb66-24"><a href="#cb66-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-25"><a href="#cb66-25" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Plan</span>
+<span id="cb66-26"><a href="#cb66-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-27"><a href="#cb66-27" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Data</span>
+<span id="cb66-28"><a href="#cb66-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-29"><a href="#cb66-29" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Model</span>
+<span id="cb66-30"><a href="#cb66-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-31"><a href="#cb66-31" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Deployment</span>
+<span id="cb66-32"><a href="#cb66-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-33"><a href="#cb66-33" aria-hidden="true" tabindex="-1"></a>The main focus within this project will be on the **Deployment** part.</span>
+<span id="cb66-34"><a href="#cb66-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-35"><a href="#cb66-35" aria-hidden="true" tabindex="-1"></a><span class="al">![Data Science Lifecycle](Images/Data_Science_lifecycle.PNG)</span></span>
+<span id="cb66-36"><a href="#cb66-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-37"><a href="#cb66-37" aria-hidden="true" tabindex="-1"></a><span class="fu"># Plan</span></span>
+<span id="cb66-38"><a href="#cb66-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-39"><a href="#cb66-39" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identify use case</span></span>
+<span id="cb66-40"><a href="#cb66-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-41"><a href="#cb66-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Frame the problem</span></span>
+<span id="cb66-42"><a href="#cb66-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-43"><a href="#cb66-43" aria-hidden="true" tabindex="-1"></a><span class="fu">## Identify variables</span></span>
+<span id="cb66-44"><a href="#cb66-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-45"><a href="#cb66-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Define metrics</span></span>
+<span id="cb66-46"><a href="#cb66-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-47"><a href="#cb66-47" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data</span></span>
+<span id="cb66-48"><a href="#cb66-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-49"><a href="#cb66-49" aria-hidden="true" tabindex="-1"></a>Within this chapter the data will be ingested and analyzed. Furthermore the data is also added into a SQL database and will be used for making queries.</span>
+<span id="cb66-50"><a href="#cb66-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-51"><a href="#cb66-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## SQL data analysis</span></span>
+<span id="cb66-52"><a href="#cb66-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-53"><a href="#cb66-53" aria-hidden="true" tabindex="-1"></a>Before the steps of the data science lifecycle are made, some SQL queries will be made on the data, in order to answer questions from our costumers.</span>
+<span id="cb66-54"><a href="#cb66-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-55"><a href="#cb66-55" aria-hidden="true" tabindex="-1"></a>First the DBI library is loaded and afterwards the data is added into the database.</span>
+<span id="cb66-56"><a href="#cb66-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-57"><a href="#cb66-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{r import_SQL_librarys}</span></span>
+<span id="cb66-58"><a href="#cb66-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-59"><a href="#cb66-59" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (DBI)</span>
+<span id="cb66-60"><a href="#cb66-60" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb66-61"><a href="#cb66-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-62"><a href="#cb66-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-63"><a href="#cb66-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-64"><a href="#cb66-64" aria-hidden="true" tabindex="-1"></a><span class="in">```{r database_connection}</span></span>
+<span id="cb66-65"><a href="#cb66-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-66"><a href="#cb66-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Connection to database </span></span>
+<span id="cb66-67"><a href="#cb66-67" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(), <span class="st">":memory:"</span>)</span>
+<span id="cb66-68"><a href="#cb66-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-69"><a href="#cb66-69" aria-hidden="true" tabindex="-1"></a>path_sql <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"</span></span>
+<span id="cb66-70"><a href="#cb66-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-71"><a href="#cb66-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Write data "gapminder" into database</span></span>
+<span id="cb66-72"><a href="#cb66-72" aria-hidden="true" tabindex="-1"></a><span class="fu">dbWriteTable</span>(con, <span class="st">"exams_sql"</span>, <span class="fu">read_csv</span>(path_sql, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb66-73"><a href="#cb66-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-74"><a href="#cb66-74" aria-hidden="true" tabindex="-1"></a><span class="co">#show table in database</span></span>
+<span id="cb66-75"><a href="#cb66-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-76"><a href="#cb66-76" aria-hidden="true" tabindex="-1"></a><span class="fu">dbListTables</span>(con)</span>
+<span id="cb66-77"><a href="#cb66-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-78"><a href="#cb66-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-79"><a href="#cb66-79" aria-hidden="true" tabindex="-1"></a><span class="fu">### First look on the data</span></span>
+<span id="cb66-80"><a href="#cb66-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-81"><a href="#cb66-81" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-82"><a href="#cb66-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-83"><a href="#cb66-83" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb66-84"><a href="#cb66-84" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-85"><a href="#cb66-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-86"><a href="#cb66-86" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-87"><a href="#cb66-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-88"><a href="#cb66-88" aria-hidden="true" tabindex="-1"></a>The dataset contains 1000 observation with eight variables. Three out of these 8 variables are the students performance on exams.</span>
+<span id="cb66-89"><a href="#cb66-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-90"><a href="#cb66-90" aria-hidden="true" tabindex="-1"></a>Show the first 10 observations:</span>
+<span id="cb66-91"><a href="#cb66-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-92"><a href="#cb66-92" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-93"><a href="#cb66-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-94"><a href="#cb66-94" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb66-95"><a href="#cb66-95" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-96"><a href="#cb66-96" aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">10</span>;</span>
+<span id="cb66-97"><a href="#cb66-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-98"><a href="#cb66-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-99"><a href="#cb66-99" aria-hidden="true" tabindex="-1"></a>It can be seen that the columns should be renamed as there are e.g. spaces included:</span>
+<span id="cb66-100"><a href="#cb66-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-101"><a href="#cb66-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-102"><a href="#cb66-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-103"><a href="#cb66-103" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
+<span id="cb66-104"><a href="#cb66-104" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"race/ethnicity"</span> <span class="kw">TO</span> ethnicity</span>
+<span id="cb66-105"><a href="#cb66-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-106"><a href="#cb66-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-107"><a href="#cb66-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-108"><a href="#cb66-108" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-109"><a href="#cb66-109" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
+<span id="cb66-110"><a href="#cb66-110" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"parental level of education"</span> <span class="kw">TO</span> parent_education</span>
+<span id="cb66-111"><a href="#cb66-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-112"><a href="#cb66-112" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-113"><a href="#cb66-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-114"><a href="#cb66-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-115"><a href="#cb66-115" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
+<span id="cb66-116"><a href="#cb66-116" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"test preparation course"</span> <span class="kw">TO</span> prep_course</span>
+<span id="cb66-117"><a href="#cb66-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-118"><a href="#cb66-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-119"><a href="#cb66-119" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-120"><a href="#cb66-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-121"><a href="#cb66-121" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
+<span id="cb66-122"><a href="#cb66-122" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"math score"</span> <span class="kw">TO</span> math_score</span>
+<span id="cb66-123"><a href="#cb66-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-124"><a href="#cb66-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-125"><a href="#cb66-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-126"><a href="#cb66-126" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
+<span id="cb66-127"><a href="#cb66-127" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"reading score"</span> <span class="kw">TO</span> reading_score</span>
+<span id="cb66-128"><a href="#cb66-128" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-129"><a href="#cb66-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-130"><a href="#cb66-130" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-131"><a href="#cb66-131" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> exams_sql</span>
+<span id="cb66-132"><a href="#cb66-132" aria-hidden="true" tabindex="-1"></a><span class="kw">RENAME</span> <span class="kw">COLUMN</span> <span class="st">"writing score"</span> <span class="kw">TO</span> writing_score;</span>
+<span id="cb66-133"><a href="#cb66-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-134"><a href="#cb66-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-135"><a href="#cb66-135" aria-hidden="true" tabindex="-1"></a>Check the renamed columns</span>
+<span id="cb66-136"><a href="#cb66-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-137"><a href="#cb66-137" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-138"><a href="#cb66-138" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb66-139"><a href="#cb66-139" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-140"><a href="#cb66-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-141"><a href="#cb66-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-142"><a href="#cb66-142" aria-hidden="true" tabindex="-1"></a>Lets have a look on the gender and their performance in math.</span>
+<span id="cb66-143"><a href="#cb66-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-144"><a href="#cb66-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-145"><a href="#cb66-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-146"><a href="#cb66-146" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> gender, <span class="st">"math_score"</span></span>
+<span id="cb66-147"><a href="#cb66-147" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-148"><a href="#cb66-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-149"><a href="#cb66-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-150"><a href="#cb66-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data Exploration</span></span>
+<span id="cb66-151"><a href="#cb66-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-152"><a href="#cb66-152" aria-hidden="true" tabindex="-1"></a>How many different genders are in the dataset?</span>
+<span id="cb66-153"><a href="#cb66-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-154"><a href="#cb66-154" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-155"><a href="#cb66-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-156"><a href="#cb66-156" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> gender</span>
+<span id="cb66-157"><a href="#cb66-157" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-158"><a href="#cb66-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-159"><a href="#cb66-159" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-160"><a href="#cb66-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-161"><a href="#cb66-161" aria-hidden="true" tabindex="-1"></a>How many different ethnicities are in the dataset?</span>
+<span id="cb66-162"><a href="#cb66-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-163"><a href="#cb66-163" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-164"><a href="#cb66-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-165"><a href="#cb66-165" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> ethnicity</span>
+<span id="cb66-166"><a href="#cb66-166" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-167"><a href="#cb66-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-168"><a href="#cb66-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-169"><a href="#cb66-169" aria-hidden="true" tabindex="-1"></a>How many different forms of parent_education are in the dataset?</span>
+<span id="cb66-170"><a href="#cb66-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-171"><a href="#cb66-171" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-172"><a href="#cb66-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-173"><a href="#cb66-173" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> parent_education</span>
+<span id="cb66-174"><a href="#cb66-174" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-175"><a href="#cb66-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-176"><a href="#cb66-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-177"><a href="#cb66-177" aria-hidden="true" tabindex="-1"></a>How many different lunch types are in the dataset?</span>
+<span id="cb66-178"><a href="#cb66-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-179"><a href="#cb66-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-180"><a href="#cb66-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-181"><a href="#cb66-181" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> lunch</span>
+<span id="cb66-182"><a href="#cb66-182" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-183"><a href="#cb66-183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-184"><a href="#cb66-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-185"><a href="#cb66-185" aria-hidden="true" tabindex="-1"></a>How many different types of preparation courses are in the dataset?</span>
+<span id="cb66-186"><a href="#cb66-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-187"><a href="#cb66-187" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-188"><a href="#cb66-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-189"><a href="#cb66-189" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="kw">DISTINCT</span> prep_course</span>
+<span id="cb66-190"><a href="#cb66-190" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-191"><a href="#cb66-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-192"><a href="#cb66-192" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-193"><a href="#cb66-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-194"><a href="#cb66-194" aria-hidden="true" tabindex="-1"></a>How many observations are in the data set?</span>
+<span id="cb66-195"><a href="#cb66-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-196"><a href="#cb66-196" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-197"><a href="#cb66-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-198"><a href="#cb66-198" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
+<span id="cb66-199"><a href="#cb66-199" aria-hidden="true" tabindex="-1"></a>  <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">as</span> rows</span>
+<span id="cb66-200"><a href="#cb66-200" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-201"><a href="#cb66-201" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-202"><a href="#cb66-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-203"><a href="#cb66-203" aria-hidden="true" tabindex="-1"></a>How many observations are available for each parent_education</span>
+<span id="cb66-204"><a href="#cb66-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-205"><a href="#cb66-205" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-206"><a href="#cb66-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-207"><a href="#cb66-207" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> parent_education,</span>
+<span id="cb66-208"><a href="#cb66-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">COUNT</span>(parent_education) <span class="kw">AS</span> amount_of_observations</span>
+<span id="cb66-209"><a href="#cb66-209" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-210"><a href="#cb66-210" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> parent_education</span>
+<span id="cb66-211"><a href="#cb66-211" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> amount_of_observations <span class="kw">DESC</span>;</span>
+<span id="cb66-212"><a href="#cb66-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-213"><a href="#cb66-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-214"><a href="#cb66-214" aria-hidden="true" tabindex="-1"></a>How many students have a math score above 80?</span>
+<span id="cb66-215"><a href="#cb66-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-216"><a href="#cb66-216" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-217"><a href="#cb66-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-218"><a href="#cb66-218" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
+<span id="cb66-219"><a href="#cb66-219" aria-hidden="true" tabindex="-1"></a>  <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">as</span> students_above_math_80</span>
+<span id="cb66-220"><a href="#cb66-220" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-221"><a href="#cb66-221" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> math_score <span class="op">&gt;</span> <span class="dv">80</span>;</span>
+<span id="cb66-222"><a href="#cb66-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-223"><a href="#cb66-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-224"><a href="#cb66-224" aria-hidden="true" tabindex="-1"></a>Have a look at the obervations of students with more than 90 in reading score</span>
+<span id="cb66-225"><a href="#cb66-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-226"><a href="#cb66-226" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-227"><a href="#cb66-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-228"><a href="#cb66-228" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb66-229"><a href="#cb66-229" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-230"><a href="#cb66-230" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> reading_score <span class="op">&gt;</span><span class="dv">90</span>;</span>
+<span id="cb66-231"><a href="#cb66-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-232"><a href="#cb66-232" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-233"><a href="#cb66-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-234"><a href="#cb66-234" aria-hidden="true" tabindex="-1"></a>Check the obervations of all females with more than 90 in writing score. The result shall be ordered by writing score (decreasing)</span>
+<span id="cb66-235"><a href="#cb66-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-236"><a href="#cb66-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-237"><a href="#cb66-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-238"><a href="#cb66-238" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span><span class="op">*</span></span>
+<span id="cb66-239"><a href="#cb66-239" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-240"><a href="#cb66-240" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> gender <span class="op">=</span><span class="st">"female"</span> <span class="kw">AND</span> writing_score<span class="op">&gt;</span><span class="dv">90</span></span>
+<span id="cb66-241"><a href="#cb66-241" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> writing_score <span class="kw">DESC</span>;</span>
+<span id="cb66-242"><a href="#cb66-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-243"><a href="#cb66-243" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-244"><a href="#cb66-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-245"><a href="#cb66-245" aria-hidden="true" tabindex="-1"></a>Check all observations of students with more than 90% in one of the exams and made NO prep_course</span>
+<span id="cb66-246"><a href="#cb66-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-247"><a href="#cb66-247" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-248"><a href="#cb66-248" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb66-249"><a href="#cb66-249" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-250"><a href="#cb66-250" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> prep_course <span class="op">=</span> <span class="st">"none"</span> <span class="kw">AND</span> (math_score<span class="op">&gt;</span><span class="dv">90</span> <span class="kw">OR</span> writing_score<span class="op">&gt;</span><span class="dv">90</span> <span class="kw">OR</span> reading_score<span class="op">&gt;</span><span class="dv">90</span>);</span>
+<span id="cb66-251"><a href="#cb66-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-252"><a href="#cb66-252" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-253"><a href="#cb66-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-254"><a href="#cb66-254" aria-hidden="true" tabindex="-1"></a>What are the average exam scores of the different ethnicies?</span>
+<span id="cb66-255"><a href="#cb66-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-256"><a href="#cb66-256" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-257"><a href="#cb66-257" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> ethnicity,</span>
+<span id="cb66-258"><a href="#cb66-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">AVG</span>(math_score) <span class="kw">as</span> avg_math,</span>
+<span id="cb66-259"><a href="#cb66-259" aria-hidden="true" tabindex="-1"></a>  <span class="fu">AVG</span>(reading_score) <span class="kw">as</span> avg_read,</span>
+<span id="cb66-260"><a href="#cb66-260" aria-hidden="true" tabindex="-1"></a>  <span class="fu">AVG</span>(writing_score) <span class="kw">as</span> avg_write</span>
+<span id="cb66-261"><a href="#cb66-261" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-262"><a href="#cb66-262" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> ethnicity;</span>
+<span id="cb66-263"><a href="#cb66-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-264"><a href="#cb66-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-265"><a href="#cb66-265" aria-hidden="true" tabindex="-1"></a>What are the best exam scores?</span>
+<span id="cb66-266"><a href="#cb66-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-267"><a href="#cb66-267" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-268"><a href="#cb66-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-269"><a href="#cb66-269" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
+<span id="cb66-270"><a href="#cb66-270" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MAX</span>(math_score) <span class="kw">as</span> max_math,</span>
+<span id="cb66-271"><a href="#cb66-271" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MAX</span>(reading_score) <span class="kw">as</span> max_read,</span>
+<span id="cb66-272"><a href="#cb66-272" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MAX</span>(writing_score) <span class="kw">as</span> max_write</span>
+<span id="cb66-273"><a href="#cb66-273" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-274"><a href="#cb66-274" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-275"><a href="#cb66-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-276"><a href="#cb66-276" aria-hidden="true" tabindex="-1"></a>What are the worst exam scores?</span>
+<span id="cb66-277"><a href="#cb66-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-278"><a href="#cb66-278" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-279"><a href="#cb66-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-280"><a href="#cb66-280" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> </span>
+<span id="cb66-281"><a href="#cb66-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MIN</span>(math_score) <span class="kw">as</span> min_math,</span>
+<span id="cb66-282"><a href="#cb66-282" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MIN</span>(reading_score) <span class="kw">as</span> min_read,</span>
+<span id="cb66-283"><a href="#cb66-283" aria-hidden="true" tabindex="-1"></a>  <span class="fu">MIN</span>(writing_score) <span class="kw">as</span> min_write</span>
+<span id="cb66-284"><a href="#cb66-284" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql;</span>
+<span id="cb66-285"><a href="#cb66-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-286"><a href="#cb66-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-287"><a href="#cb66-287" aria-hidden="true" tabindex="-1"></a>What are the average exam scores for the genders?</span>
+<span id="cb66-288"><a href="#cb66-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-289"><a href="#cb66-289" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-290"><a href="#cb66-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-291"><a href="#cb66-291" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> gender,</span>
+<span id="cb66-292"><a href="#cb66-292" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">AVG</span>(math_score) <span class="op">+</span> <span class="fu">AVG</span>(reading_score) <span class="op">+</span> <span class="fu">AVG</span>(writing_score)) <span class="op">/</span><span class="dv">3</span> <span class="kw">as</span> avg_exams_score</span>
+<span id="cb66-293"><a href="#cb66-293" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-294"><a href="#cb66-294" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> gender;</span>
+<span id="cb66-295"><a href="#cb66-295" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-296"><a href="#cb66-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-297"><a href="#cb66-297" aria-hidden="true" tabindex="-1"></a>Show all obervations which are parents_education "high_school" and have an average score in exams between 80 and 90. Result shall be ordered descending by avg_exam_score</span>
+<span id="cb66-298"><a href="#cb66-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-299"><a href="#cb66-299" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-300"><a href="#cb66-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-301"><a href="#cb66-301" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> gender, ethnicity, parent_education, lunch, prep_course,</span>
+<span id="cb66-302"><a href="#cb66-302" aria-hidden="true" tabindex="-1"></a>  (math_score <span class="op">+</span> reading_score <span class="op">+</span> writing_score) <span class="op">/</span><span class="dv">3</span> <span class="kw">as</span> avg_exams_score</span>
+<span id="cb66-303"><a href="#cb66-303" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-304"><a href="#cb66-304" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> parent_education <span class="op">=</span> <span class="st">"high school"</span> <span class="kw">AND</span> avg_exams_score <span class="kw">BETWEEN</span> <span class="dv">80</span> <span class="kw">AND</span> <span class="dv">90</span>;</span>
+<span id="cb66-305"><a href="#cb66-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-306"><a href="#cb66-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-307"><a href="#cb66-307" aria-hidden="true" tabindex="-1"></a>Show all male ethnicities which have an average_exams score less than 70. Order the avg_exams_score ascending.</span>
+<span id="cb66-308"><a href="#cb66-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-309"><a href="#cb66-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{sql connection=con}</span></span>
+<span id="cb66-310"><a href="#cb66-310" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-311"><a href="#cb66-311" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> ethnicity,</span>
+<span id="cb66-312"><a href="#cb66-312" aria-hidden="true" tabindex="-1"></a>  (<span class="fu">AVG</span>(math_score) <span class="op">+</span> <span class="fu">AVG</span>(reading_score) <span class="op">+</span> <span class="fu">AVG</span>(writing_score)) <span class="op">/</span><span class="dv">3</span> <span class="kw">as</span> avg_exams_score</span>
+<span id="cb66-313"><a href="#cb66-313" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> exams_sql</span>
+<span id="cb66-314"><a href="#cb66-314" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> gender<span class="op">=</span><span class="st">"male"</span></span>
+<span id="cb66-315"><a href="#cb66-315" aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> ethnicity</span>
+<span id="cb66-316"><a href="#cb66-316" aria-hidden="true" tabindex="-1"></a><span class="kw">HAVING</span> avg_exams_score <span class="op">&lt;</span> <span class="dv">70</span></span>
+<span id="cb66-317"><a href="#cb66-317" aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> avg_exams_score;</span>
+<span id="cb66-318"><a href="#cb66-318" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-319"><a href="#cb66-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-320"><a href="#cb66-320" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-321"><a href="#cb66-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-322"><a href="#cb66-322" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data ingestion</span></span>
+<span id="cb66-323"><a href="#cb66-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-324"><a href="#cb66-324" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data Import</span></span>
+<span id="cb66-325"><a href="#cb66-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-326"><a href="#cb66-326" aria-hidden="true" tabindex="-1"></a>First of all the data will be imported</span>
+<span id="cb66-327"><a href="#cb66-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-328"><a href="#cb66-328" aria-hidden="true" tabindex="-1"></a><span class="in">```{r read_csv}</span></span>
+<span id="cb66-329"><a href="#cb66-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-330"><a href="#cb66-330" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb66-331"><a href="#cb66-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-332"><a href="#cb66-332" aria-hidden="true" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"</span></span>
+<span id="cb66-333"><a href="#cb66-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-334"><a href="#cb66-334" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(path, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb66-335"><a href="#cb66-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-336"><a href="#cb66-336" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-337"><a href="#cb66-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-338"><a href="#cb66-338" aria-hidden="true" tabindex="-1"></a><span class="fu">### Clean Data</span></span>
+<span id="cb66-339"><a href="#cb66-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-340"><a href="#cb66-340" aria-hidden="true" tabindex="-1"></a>Lets have a look on the first rows to get an expression of the data</span>
+<span id="cb66-341"><a href="#cb66-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-342"><a href="#cb66-342" aria-hidden="true" tabindex="-1"></a><span class="in">```{r first_rows}</span></span>
+<span id="cb66-343"><a href="#cb66-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-344"><a href="#cb66-344" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-345"><a href="#cb66-345" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb66-346"><a href="#cb66-346" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb66-347"><a href="#cb66-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-348"><a href="#cb66-348" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-349"><a href="#cb66-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-350"><a href="#cb66-350" aria-hidden="true" tabindex="-1"></a>Before further steps can be made, the columns names need to be corrected, als they are including spaces and special characters. To remove those, the janitor package will be used.</span>
+<span id="cb66-351"><a href="#cb66-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-352"><a href="#cb66-352" aria-hidden="true" tabindex="-1"></a><span class="in">```{r janitor}</span></span>
+<span id="cb66-353"><a href="#cb66-353" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb66-354"><a href="#cb66-354" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-355"><a href="#cb66-355" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb66-356"><a href="#cb66-356" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-357"><a href="#cb66-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-358"><a href="#cb66-358" aria-hidden="true" tabindex="-1"></a>Beside the cleaning of the names, some variables shall be renamed in order to shorten the length.</span>
+<span id="cb66-359"><a href="#cb66-359" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-360"><a href="#cb66-360" aria-hidden="true" tabindex="-1"></a><span class="in">```{r rename_columns}</span></span>
+<span id="cb66-361"><a href="#cb66-361" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">rename</span>(exams, <span class="at">ethnic_group =</span> race_ethnicity)</span>
+<span id="cb66-362"><a href="#cb66-362" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">rename</span>(exams, <span class="at">parent_education =</span> parental_level_of_education)</span>
+<span id="cb66-363"><a href="#cb66-363" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> <span class="fu">rename</span>(exams, <span class="at">test_prep =</span> test_preparation_course)</span>
+<span id="cb66-364"><a href="#cb66-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-365"><a href="#cb66-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-366"><a href="#cb66-366" aria-hidden="true" tabindex="-1"></a>The available data consist of <span class="in">`r nrow(exams)`</span>. The available features are <span class="in">`r names(exams)`</span>.</span>
+<span id="cb66-367"><a href="#cb66-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-368"><a href="#cb66-368" aria-hidden="true" tabindex="-1"></a><span class="fu">### Missing data</span></span>
+<span id="cb66-369"><a href="#cb66-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-370"><a href="#cb66-370" aria-hidden="true" tabindex="-1"></a>Lets have a look on the description of the data to check the formats.</span>
+<span id="cb66-371"><a href="#cb66-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-372"><a href="#cb66-372" aria-hidden="true" tabindex="-1"></a><span class="in">```{r glimpse}</span></span>
+<span id="cb66-373"><a href="#cb66-373" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span> (exams)</span>
+<span id="cb66-374"><a href="#cb66-374" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-375"><a href="#cb66-375" aria-hidden="true" tabindex="-1"></a>Are there any missing data? lets check it:</span>
+<span id="cb66-376"><a href="#cb66-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-377"><a href="#cb66-377" aria-hidden="true" tabindex="-1"></a><span class="in">```{r missing_values_graphic}</span></span>
+<span id="cb66-378"><a href="#cb66-378" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(visdat)</span>
+<span id="cb66-379"><a href="#cb66-379" aria-hidden="true" tabindex="-1"></a><span class="fu">vis_dat</span>(exams)</span>
+<span id="cb66-380"><a href="#cb66-380" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-381"><a href="#cb66-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-382"><a href="#cb66-382" aria-hidden="true" tabindex="-1"></a>Alternative method for missing data:</span>
+<span id="cb66-383"><a href="#cb66-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-384"><a href="#cb66-384" aria-hidden="true" tabindex="-1"></a><span class="in">```{r missing_values_num}</span></span>
+<span id="cb66-385"><a href="#cb66-385" aria-hidden="true" tabindex="-1"></a><span class="fu">is.na</span>(exams) <span class="sc">%&gt;%</span> <span class="fu">colSums</span>()</span>
+<span id="cb66-386"><a href="#cb66-386" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-387"><a href="#cb66-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-388"><a href="#cb66-388" aria-hidden="true" tabindex="-1"></a>There are no missing numbers in the dataset. Three variables (scores in the exam) are numeric, the other variables are characters.</span>
+<span id="cb66-389"><a href="#cb66-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-390"><a href="#cb66-390" aria-hidden="true" tabindex="-1"></a><span class="fu">### Format data</span></span>
+<span id="cb66-391"><a href="#cb66-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-392"><a href="#cb66-392" aria-hidden="true" tabindex="-1"></a>Lets have a look on the character columns and check if they should be formatted as factor.</span>
+<span id="cb66-393"><a href="#cb66-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-394"><a href="#cb66-394" aria-hidden="true" tabindex="-1"></a><span class="in">```{r levels_gender}</span></span>
+<span id="cb66-395"><a href="#cb66-395" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-396"><a href="#cb66-396" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(gender,</span>
+<span id="cb66-397"><a href="#cb66-397" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb66-398"><a href="#cb66-398" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-399"><a href="#cb66-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-400"><a href="#cb66-400" aria-hidden="true" tabindex="-1"></a><span class="in">```{r levels_ethnic_group}</span></span>
+<span id="cb66-401"><a href="#cb66-401" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-402"><a href="#cb66-402" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(ethnic_group,</span>
+<span id="cb66-403"><a href="#cb66-403" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb66-404"><a href="#cb66-404" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-405"><a href="#cb66-405" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-406"><a href="#cb66-406" aria-hidden="true" tabindex="-1"></a><span class="in">```{r levels_parent_education}</span></span>
+<span id="cb66-407"><a href="#cb66-407" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-408"><a href="#cb66-408" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(parent_education,</span>
+<span id="cb66-409"><a href="#cb66-409" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb66-410"><a href="#cb66-410" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-411"><a href="#cb66-411" aria-hidden="true" tabindex="-1"></a><span class="in">```{r levels_lunch}</span></span>
+<span id="cb66-412"><a href="#cb66-412" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-413"><a href="#cb66-413" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(lunch,</span>
+<span id="cb66-414"><a href="#cb66-414" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb66-415"><a href="#cb66-415" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-416"><a href="#cb66-416" aria-hidden="true" tabindex="-1"></a><span class="in">```{r levels_test_prep}</span></span>
+<span id="cb66-417"><a href="#cb66-417" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-418"><a href="#cb66-418" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(test_prep,</span>
+<span id="cb66-419"><a href="#cb66-419" aria-hidden="true" tabindex="-1"></a>        <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb66-420"><a href="#cb66-420" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-421"><a href="#cb66-421" aria-hidden="true" tabindex="-1"></a>All character variables are having only a small amount of different levels. Therefore all character variables shall be transferred as factor.</span>
+<span id="cb66-422"><a href="#cb66-422" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-423"><a href="#cb66-423" aria-hidden="true" tabindex="-1"></a><span class="in">```{r char_to_factor}</span></span>
+<span id="cb66-424"><a href="#cb66-424" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> </span>
+<span id="cb66-425"><a href="#cb66-425" aria-hidden="true" tabindex="-1"></a>  exams <span class="sc">%&gt;%</span> </span>
+<span id="cb66-426"><a href="#cb66-426" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.character), as.factor))</span>
+<span id="cb66-427"><a href="#cb66-427" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-428"><a href="#cb66-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-429"><a href="#cb66-429" aria-hidden="true" tabindex="-1"></a><span class="fu">### Create new variables</span></span>
+<span id="cb66-430"><a href="#cb66-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-431"><a href="#cb66-431" aria-hidden="true" tabindex="-1"></a>Target of this project is to predict the students performance on exams. Therefore an additional column shall be added. This column shall include the average exam score of the students.</span>
+<span id="cb66-432"><a href="#cb66-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-433"><a href="#cb66-433" aria-hidden="true" tabindex="-1"></a><span class="in">```{r new_column_avg_score}</span></span>
+<span id="cb66-434"><a href="#cb66-434" aria-hidden="true" tabindex="-1"></a>exams <span class="ot">&lt;-</span> exams<span class="sc">%&gt;%</span></span>
+<span id="cb66-435"><a href="#cb66-435" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span> (<span class="at">avg_score =</span> (math_score <span class="sc">+</span> reading_score <span class="sc">+</span> writing_score)<span class="sc">/</span><span class="dv">3</span>)</span>
+<span id="cb66-436"><a href="#cb66-436" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-437"><a href="#cb66-437" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-438"><a href="#cb66-438" aria-hidden="true" tabindex="-1"></a>As all other variables are not numeric, no further new variables can be created.</span>
+<span id="cb66-439"><a href="#cb66-439" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-440"><a href="#cb66-440" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data overview</span></span>
+<span id="cb66-441"><a href="#cb66-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-442"><a href="#cb66-442" aria-hidden="true" tabindex="-1"></a>After succesfully cleaning, formatting and checking the data, lets have an overview of the data with the package *skimr*: </span>
+<span id="cb66-443"><a href="#cb66-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-444"><a href="#cb66-444" aria-hidden="true" tabindex="-1"></a><span class="in">```{r skimr}</span></span>
+<span id="cb66-445"><a href="#cb66-445" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb66-446"><a href="#cb66-446" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(exams)</span>
+<span id="cb66-447"><a href="#cb66-447" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-448"><a href="#cb66-448" aria-hidden="true" tabindex="-1"></a>**beschreiben!**</span>
+<span id="cb66-449"><a href="#cb66-449" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-450"><a href="#cb66-450" aria-hidden="true" tabindex="-1"></a><span class="fu">### Define features and outcome variable</span></span>
+<span id="cb66-451"><a href="#cb66-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-452"><a href="#cb66-452" aria-hidden="true" tabindex="-1"></a>In advance of the data splitting the definition of the target variable and the feature variables shall be made.</span>
+<span id="cb66-453"><a href="#cb66-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-454"><a href="#cb66-454" aria-hidden="true" tabindex="-1"></a>The performance in the exams shall be predicted, for this the average performance is sufficient. As the target is to predict the performance, the variables for math, reading and writing score must not be included into the feature list.</span>
+<span id="cb66-455"><a href="#cb66-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-456"><a href="#cb66-456" aria-hidden="true" tabindex="-1"></a><span class="in">```{r outcome_and_features}</span></span>
+<span id="cb66-457"><a href="#cb66-457" aria-hidden="true" tabindex="-1"></a>y_label <span class="ot">&lt;-</span> <span class="st">'avg_score'</span></span>
+<span id="cb66-458"><a href="#cb66-458" aria-hidden="true" tabindex="-1"></a>features <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'gender'</span>, <span class="st">'ethnic_group'</span>, <span class="st">'parent_education'</span>, <span class="st">'lunch'</span>, <span class="st">'test_prep'</span>)</span>
+<span id="cb66-459"><a href="#cb66-459" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-460"><a href="#cb66-460" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(features))</span>
+<span id="cb66-461"><a href="#cb66-461" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-462"><a href="#cb66-462" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(y_label))</span>
+<span id="cb66-463"><a href="#cb66-463" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-464"><a href="#cb66-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-465"><a href="#cb66-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-466"><a href="#cb66-466" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data splitting</span></span>
+<span id="cb66-467"><a href="#cb66-467" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-468"><a href="#cb66-468" aria-hidden="true" tabindex="-1"></a>Before the data exploration can be started, the data shall be splitted into a training and test set.</span>
+<span id="cb66-469"><a href="#cb66-469" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-470"><a href="#cb66-470" aria-hidden="true" tabindex="-1"></a>To ensure that the training and test set is representative of the various categories of <span class="in">`avg_score`</span> in the whole dataset, lets have a look on the histogram</span>
+<span id="cb66-471"><a href="#cb66-471" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-472"><a href="#cb66-472" aria-hidden="true" tabindex="-1"></a><span class="in">```{r bins_target_variable}</span></span>
+<span id="cb66-473"><a href="#cb66-473" aria-hidden="true" tabindex="-1"></a>exams <span class="sc">%&gt;%</span></span>
+<span id="cb66-474"><a href="#cb66-474" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(avg_score)) <span class="sc">+</span> </span>
+<span id="cb66-475"><a href="#cb66-475" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span> (<span class="at">bins=</span><span class="dv">6</span>) <span class="co">#tested several, 6 makes most sense </span></span>
+<span id="cb66-476"><a href="#cb66-476" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-477"><a href="#cb66-477" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-478"><a href="#cb66-478" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-479"><a href="#cb66-479" aria-hidden="true" tabindex="-1"></a>The splitted data shall included equally data from each of the bins.In order the have the same results for each run, a fix seed is set.</span>
+<span id="cb66-480"><a href="#cb66-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-481"><a href="#cb66-481" aria-hidden="true" tabindex="-1"></a>Target is to have 80% of the data for training and 20% for testing.</span>
+<span id="cb66-482"><a href="#cb66-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-483"><a href="#cb66-483" aria-hidden="true" tabindex="-1"></a><span class="in">```{r train_test_split}</span></span>
+<span id="cb66-484"><a href="#cb66-484" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb66-485"><a href="#cb66-485" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-486"><a href="#cb66-486" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">50</span>) <span class="co">#for reproducability</span></span>
+<span id="cb66-487"><a href="#cb66-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-488"><a href="#cb66-488" aria-hidden="true" tabindex="-1"></a><span class="co"># split in train and test data</span></span>
+<span id="cb66-489"><a href="#cb66-489" aria-hidden="true" tabindex="-1"></a>data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span> (exams,</span>
+<span id="cb66-490"><a href="#cb66-490" aria-hidden="true" tabindex="-1"></a>                             <span class="at">prop =</span><span class="dv">4</span><span class="sc">/</span><span class="dv">5</span>,</span>
+<span id="cb66-491"><a href="#cb66-491" aria-hidden="true" tabindex="-1"></a>                             <span class="at">strat =</span> avg_score,</span>
+<span id="cb66-492"><a href="#cb66-492" aria-hidden="true" tabindex="-1"></a>                             <span class="at">breaks =</span> <span class="dv">6</span>)</span>
+<span id="cb66-493"><a href="#cb66-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-494"><a href="#cb66-494" aria-hidden="true" tabindex="-1"></a><span class="co"># Create train dataframe</span></span>
+<span id="cb66-495"><a href="#cb66-495" aria-hidden="true" tabindex="-1"></a>train_data <span class="ot">&lt;-</span> <span class="fu">training</span>(data_split)</span>
+<span id="cb66-496"><a href="#cb66-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-497"><a href="#cb66-497" aria-hidden="true" tabindex="-1"></a><span class="co">#create test data set</span></span>
+<span id="cb66-498"><a href="#cb66-498" aria-hidden="true" tabindex="-1"></a>test_data <span class="ot">&lt;-</span> <span class="fu">testing</span>(data_split)</span>
+<span id="cb66-499"><a href="#cb66-499" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-500"><a href="#cb66-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-501"><a href="#cb66-501" aria-hidden="true" tabindex="-1"></a>Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data.</span>
+<span id="cb66-502"><a href="#cb66-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-503"><a href="#cb66-503" aria-hidden="true" tabindex="-1"></a><span class="in">```{r validation_set}</span></span>
+<span id="cb66-504"><a href="#cb66-504" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
+<span id="cb66-505"><a href="#cb66-505" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-506"><a href="#cb66-506" aria-hidden="true" tabindex="-1"></a>cv_folds <span class="ot">&lt;-</span> </span>
+<span id="cb66-507"><a href="#cb66-507" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vfold_cv</span>(train_data,</span>
+<span id="cb66-508"><a href="#cb66-508" aria-hidden="true" tabindex="-1"></a>           <span class="at">v=</span><span class="dv">5</span>,</span>
+<span id="cb66-509"><a href="#cb66-509" aria-hidden="true" tabindex="-1"></a>           <span class="at">strata =</span> y_label,</span>
+<span id="cb66-510"><a href="#cb66-510" aria-hidden="true" tabindex="-1"></a>           <span class="at">breaks =</span> <span class="dv">6</span>)</span>
+<span id="cb66-511"><a href="#cb66-511" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb66-512"><a href="#cb66-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-513"><a href="#cb66-513" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-514"><a href="#cb66-514" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analyze data</span></span>
+<span id="cb66-515"><a href="#cb66-515" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-516"><a href="#cb66-516" aria-hidden="true" tabindex="-1"></a><span class="fu">## Define schema</span></span>
+<span id="cb66-517"><a href="#cb66-517" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-518"><a href="#cb66-518" aria-hidden="true" tabindex="-1"></a><span class="fu">## Anomaly detection</span></span>
+<span id="cb66-519"><a href="#cb66-519" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-520"><a href="#cb66-520" aria-hidden="true" tabindex="-1"></a><span class="fu">## Feature engineering</span></span>
+<span id="cb66-521"><a href="#cb66-521" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-522"><a href="#cb66-522" aria-hidden="true" tabindex="-1"></a><span class="fu"># Model</span></span>
+<span id="cb66-523"><a href="#cb66-523" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-524"><a href="#cb66-524" aria-hidden="true" tabindex="-1"></a><span class="fu">## Select algorithm</span></span>
+<span id="cb66-525"><a href="#cb66-525" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-526"><a href="#cb66-526" aria-hidden="true" tabindex="-1"></a><span class="fu">## Model training &amp; tuning</span></span>
+<span id="cb66-527"><a href="#cb66-527" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-528"><a href="#cb66-528" aria-hidden="true" tabindex="-1"></a><span class="fu">## Evaluate model</span></span>
+<span id="cb66-529"><a href="#cb66-529" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-530"><a href="#cb66-530" aria-hidden="true" tabindex="-1"></a><span class="fu"># Deployment</span></span>
+<span id="cb66-531"><a href="#cb66-531" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-532"><a href="#cb66-532" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validate model</span></span>
+<span id="cb66-533"><a href="#cb66-533" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-534"><a href="#cb66-534" aria-hidden="true" tabindex="-1"></a><span class="fu">## Deploy model</span></span>
+<span id="cb66-535"><a href="#cb66-535" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-536"><a href="#cb66-536" aria-hidden="true" tabindex="-1"></a><span class="fu">## Serve model</span></span>
+<span id="cb66-537"><a href="#cb66-537" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-538"><a href="#cb66-538" aria-hidden="true" tabindex="-1"></a><span class="fu">## Monitor model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
