@@ -1,0 +1,23 @@
+project:
+  type: book
+
+book:
+  title: "Project_student_grades"
+  author: "Daniel Steck"
+  date: "7.4.2023"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - summary.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
