@@ -18,13 +18,244 @@ output:
 
 I, Daniel Steck, hereby state that I have not communicated with or gained information in any way from my classmates or anyone other than the Professor during this exam, and that all work is my own.
 
-```{r}
-1 + 1
+# Introduction
+
+This project was created within the modul "Programming languages for Data Science. Moreover, this project will follow the data science lifecycle, which consists of four main topics:
+
+-   Plan
+
+-   Data
+
+-   Model
+
+-   Deployment
+
+The main focus within this project will be on the **Deployment** part.
+
+![Data Science Lifecycle](Images/Data_Science_lifecycle.PNG)
+
+# Plan
+
+## Identify use case
+
+## Frame the problem
+
+## Identify variables
+
+## Define metrics
+
+# Data
+
+Within this chapter the data will be ingested and analyzed. Furthermore the data is also added into a SQL database and will be used for making queries.
+
+## SQL data analysis
+
+Before the steps of the data science lifecycle are made, some SQL queries will be made on the data, in order to answer questions from our costumers.
+
+First the DBI library is loaded and afterwards the data is added into the database.
+
+```{r import_SQL_librarys}
+
+library (DBI)
+library(tidyverse)
+
 ```
 
-You can add options to executable code like this
+```{r database_connection}
 
-```{r}
-#| echo: false
-2 * 2
+# Connection to database 
+con <- dbConnect(RSQLite::SQLite(), ":memory:")
+
+path_sql <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
+
+# Write data "gapminder" into database
+dbWriteTable(con, "exams_sql", read_csv(path_sql, show_col_types = FALSE))
+
+#show table in database
+
+dbListTables(con)
 ```
+
+### First look on the data
+
+```{sql connection=con}
+
+SELECT *
+FROM exams_sql;
+
+```
+
+The dataset contains 1000 observation with eight variables. Three out of these 8 variables are the students performance on exams.
+
+Show the first 10 observations:
+
+```{sql connection=con}
+
+SELECT *
+FROM exams_sql
+LIMIT 10;
+```
+
+It can be seen that the columns should be renamed as there are e.g. spaces included:
+
+```{sql connection=con}
+
+ALTER TABLE exams_sql
+RENAME COLUMN "race/ethnicity" TO ethnicity
+
+```
+
+```{sql connection=con}
+ALTER TABLE exams_sql
+RENAME COLUMN "parental level of education" TO parent_education
+
+```
+
+```{sql connection=con}
+ALTER TABLE exams_sql
+RENAME COLUMN "test preparation course" TO prep_course
+```
+
+```{sql connection=con}
+
+ALTER TABLE exams_sql
+RENAME COLUMN "math score" TO math_score
+```
+
+```{sql connection=con}
+ALTER TABLE exams_sql
+RENAME COLUMN "reading score" TO reading_score
+```
+
+```{sql connection=con}
+ALTER TABLE exams_sql
+RENAME COLUMN "writing score" TO writing_score;
+```
+
+Check the renamed columns
+
+```{sql connection=con}
+SELECT *
+FROM exams_sql
+```
+
+Lets have a look on the gender and their performance in math.
+
+```{sql connection=con}
+
+SELECT gender, "math_score"
+FROM exams_sql;
+```
+
+### Data Exploration
+
+How many different genders are in the dataset?
+
+```{sql connection=con}
+
+SELECT DISTINCT gender
+FROM exams_sql;
+
+```
+
+How many different ethnicities are in the dataset?
+
+```{sql connection=con}
+
+SELECT DISTINCT ethnicity
+FROM exams_sql;
+```
+
+How many different forms of parent_education are in the dataset?
+
+```{sql connection=con}
+
+SELECT DISTINCT parent_education
+FROM exams_sql;
+```
+
+How many different lunch types are in the dataset?
+
+```{sql connection=con}
+
+SELECT DISTINCT lunch
+FROM exams_sql;
+```
+
+How many different types of preparation courses are in the dataset?
+
+```{sql connection=con}
+
+SELECT DISTINCT prep_course
+FROM exams_sql;
+
+```
+
+How many observations are in the data set?
+
+```{sql connection=con}
+
+SELECT 
+  COUNT(*) as rows
+FROM exams_sql;
+```
+
+How many students have a math score above 80?
+
+```{sql connection=con}
+
+SELECT 
+  COUNT(*) as students_above_math_80
+FROM exams_sql
+WHERE math_score > 80;
+```
+
+Have a look at the obervations of students with more than 90 in reading score
+
+```{sql connection=con}
+
+SELECT *
+FROM exams_sql
+WHERE reading_score >90;
+
+```
+
+## Data ingestion
+
+```{r read_csv}
+
+library(tidyverse)
+
+path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
+
+exams <- read_csv(path, show_col_types = FALSE)
+
+```
+
+## Data splitting
+
+## Analyze data
+
+## Define schema
+
+## Anomaly detection
+
+## Feature engineering
+
+# Model
+
+## Select algorithm
+
+## Model training & tuning
+
+## Evaluate model
+
+# Deployment
+
+## Validate model
+
+## Deploy model
+
+## Serve model
+
+## Monitor model
