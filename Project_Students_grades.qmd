@@ -372,6 +372,7 @@ Lets have a look on the description of the data to check the formats.
 ```{r glimpse}
 glimpse (exams)
 ```
+
 Are there any missing data? lets check it:
 
 ```{r missing_values_graphic}
@@ -408,16 +409,19 @@ exams %>%
   count(parent_education,
         sort = TRUE)
 ```
+
 ```{r levels_lunch}
 exams %>%
   count(lunch,
         sort = TRUE)
 ```
+
 ```{r levels_test_prep}
 exams %>%
   count(test_prep,
         sort = TRUE)
 ```
+
 All character variables are having only a small amount of different levels. Therefore all character variables shall be transferred as factor.
 
 ```{r char_to_factor}
@@ -439,12 +443,13 @@ As all other variables are not numeric, no further new variables can be created.
 
 ### Data overview
 
-After succesfully cleaning, formatting and checking the data, lets have an overview of the data with the package *skimr*: 
+After succesfully cleaning, formatting and checking the data, lets have an overview of the data with the package *skimr*:
 
 ```{r skimr}
 library(skimr)
 skim(exams)
 ```
+
 **beschreiben!**
 
 ### Define features and outcome variable
@@ -452,6 +457,10 @@ skim(exams)
 In advance of the data splitting the definition of the target variable and the feature variables shall be made.
 
 The performance in the exams shall be predicted, for this the average performance is sufficient. As the target is to predict the performance, the variables for math, reading and writing score must not be included into the feature list.
+
+It would be also possible to make a use case which predicts e.g. the performance in math and also includes the students performance in the other exams. In this case only the general performance shall be predicted to see which generic attributes have a influence on students performance. Also exams are most time in a thigh schedule, which means that there wont be a lot of time between exams. Therefore it does not make sense to include also the performance in other exams to predict the performance in e.g. math. Moreover it takes some time until the results are available. So probably the students already had their exam before the receive the first results. Therefore the target in this project is the prediction of an average exam performance without including the performance in the other exams.
+
+Nevertheless in the data exploration these other exam scores will be also included, but they wont go into the model.
 
 ```{r outcome_and_features}
 y_label <- 'avg_score'
@@ -462,6 +471,7 @@ y <- exams %>%
   select(all_of(y_label))
 ```
 
+Our data is now prepared for the data splitting and for building the pipelines.
 
 ## Data splitting
 
@@ -510,8 +520,158 @@ cv_folds <-
            breaks = 6)
 ```
 
-
 ## Analyze data
+
+This chapter had the target to understand the training data and to see which variables have an influence on the outcome variable **avg_score**.
+
+### Data exploration set
+
+First step is to create a copy of the training data which will be used for the exploratory data analysis.
+
+```{r exploration_dataframe}
+df_explo <- train_data
+```
+
+### R queries
+
+```{r avg_score_statistics}
+df_explo %>%
+  summarise(
+    min_score = min(avg_score,na.rm =TRUE) # na dependency not needed as no missing values, but it might be that data changes with an updated dataset
+    ,
+    mean_score = mean(avg_score,na.rm =TRUE),
+    med_score = median(avg_score,na.rm =TRUE),
+    std_score = sd(avg_score,na.rm =TRUE),
+    iqr_score = IQR(avg_score,na.rm =TRUE),
+    q1 =quantile(avg_score, probs =0.25,na.rm =TRUE),
+    q3 = quantile(avg_score, probs = 0.75,na.rm =TRUE),
+    max_score = max(avg_score,na.rm =TRUE)
+    
+  )
+```
+
+The worst exam result is `20` while `100` is the best one. Moreover the mean and median values are almost similar and there is only a slight difference. This means that there are no big outliers included here (which is also easy to explain as 100 is the best possible performance). The IQR score of 20 tells us, that the difference between the 75th and 25th percentile is only havgin a difference of 20. So 50% of the data is within a difference of 20.
+
+25% of the students have a exam score of less than 59,3 and 25& of the students are above 79,3. 50% of the students are between 59,3 and 79,3.
+
+Moreover it is interesing how the median, mean and iqr, q1, q3 values are distributed within the categorical variables.
+
+Lets have a look on the gender variable and sort the results descending.
+
+```{r avg_score_gender}
+df_explo %>%
+  group_by(gender) %>%
+  summarise(
+    mean_score = mean(avg_score,na.rm =TRUE),
+    med_score = median(avg_score,na.rm =TRUE),
+    iqr_score = IQR(avg_score,na.rm =TRUE),
+    q1 =quantile(avg_score, probs =0.25,na.rm =TRUE),
+    q3 = quantile(avg_score, probs = 0.75,na.rm =TRUE)) %>% 
+      
+arrange(desc(med_score))
+```
+
+The performance of female students is better than the performance of male students.
+
+Lets have a look on the ethic_group variable and sort the results descending.
+
+```{r avg_score_ethic_group}
+df_explo %>%
+  group_by(ethnic_group) %>%
+  summarise(
+    mean_score = mean(avg_score,na.rm =TRUE),
+    med_score = median(avg_score,na.rm =TRUE),
+    iqr_score = IQR(avg_score,na.rm =TRUE),
+    q1 =quantile(avg_score, probs =0.25,na.rm =TRUE),
+    q3 = quantile(avg_score, probs = 0.75,na.rm =TRUE),
+    ) %>%
+arrange(desc(med_score))
+```
+
+The `group E` has the best performance in the exams. There is a huge gap compared to `group D`. Moreover there is almost no difference in mean and median between the other three groups. It might make sense to combine there groups into one group. But lets analyse this first in a visualization, because the IQR score is spreading a lot between these groups. For example the difference in the q1 is much higher than in the mean and median.
+
+Lets have a look on the variable of parents education and sort the results descending.
+
+```{r avg_score_parent_education}
+df_explo %>%
+  group_by(parent_education) %>%
+  summarise(
+    mean_score = mean(avg_score,na.rm =TRUE),
+    med_score = median(avg_score,na.rm =TRUE),
+    iqr_score = IQR(avg_score,na.rm =TRUE),
+    q1 =quantile(avg_score, probs =0.25,na.rm =TRUE),
+    q3 = quantile(avg_score, probs = 0.75,na.rm =TRUE),
+    ) %>%
+arrange(desc(med_score))
+```
+
+It can be seen that a higher parent education is not directly leading to a better exam score. The best students are within the `associate's degree` which is a lower education than the `master's degree` and `bachelor's degree`.
+
+Based on the given levels, this would be the ascending order of parent_eduaction (based on these links:
+
+-   [Associates, Bachelors and Masters](https://thebestschools.org/degrees/college-degree-levels/#:~:text=A%20doctorate%20is%20the%20highest,research%20requirements%2C%20and%20a%20dissertation.)
+
+-   [High School and College](https://usahello.org/education/children/grade-levels/#gref)
+
+-   [College vs Associates degree](http://www.differencebetween.net/miscellaneous/difference-between-diploma-and-associate-degree/#:~:text=A%20student%20may%20take%20one,stone%20to%20a%20higher%20education.)
+
+)
+
+List of education level in a ascending order:
+
+1.   Some High School/High School --\> I did not find any results for this in a research. Probably High School might be a bit better than some High school
+2.   Some College
+3.   Associates degree
+4.   Bachelor degree
+5.   Masters degree
+
+This order of parental education is not represented in the performance of students performance.
+
+The worst exam results are for the parental education of some High School and High School.
+
+Lets have a look on the lunch variable and sort the results descending.
+
+```{r avg_score_lunch}
+df_explo %>%
+  group_by(lunch) %>%
+  summarise(
+    mean_score = mean(avg_score,na.rm =TRUE),
+    med_score = median(avg_score,na.rm =TRUE),
+    iqr_score = IQR(avg_score,na.rm =TRUE),
+    q1 =quantile(avg_score, probs =0.25,na.rm =TRUE),
+    q3 = quantile(avg_score, probs = 0.75,na.rm =TRUE),
+    ) %>%
+arrange(desc(med_score))
+```
+
+There is a huge difference between the students performance which have a standard meal and the ones which have a free/reduced meal. Probably the students who are getting a free/reducred meal are from a porer family which might have less time to spend with their kids or maybe the kids education is not the highest priority. As the family might have finicial issues it could be also possible that the students need to work in order to have enough money for the family. Therefore it might be that their study time is needed for working and this might lead to worse results.
+
+Lets have a look on the test preparation variable and sort the results descending.
+
+```{r avg_score_test_prep}
+df_explo %>%
+  group_by(test_prep) %>%
+  summarise(
+    mean_score = mean(avg_score,na.rm =TRUE),
+    med_score = median(avg_score,na.rm =TRUE),
+    iqr_score = IQR(avg_score,na.rm =TRUE),
+    q1 =quantile(avg_score, probs =0.25,na.rm =TRUE),
+    q3 = quantile(avg_score, probs = 0.75,na.rm =TRUE),
+    ) %>%
+arrange(desc(med_score))
+```
+
+Students who made a test preparation course have much better results than students who didnt. But the difference is much smaller than in the lunch variable.
+
+### Visualizations
+
+In this chapter plots are created in order to learn from the data and find correlations between the variables.
+
+First of all lets start with the plot of the target variable. How is it distributed in the value range?
+
+```{r}
+
+```
 
 ## Define schema
 
