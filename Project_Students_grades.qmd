@@ -619,11 +619,11 @@ Based on the given levels, this would be the ascending order of parent_eduaction
 
 List of education level in a ascending order:
 
-1.   Some High School/High School --\> I did not find any results for this in a research. Probably High School might be a bit better than some High school
-2.   Some College
-3.   Associates degree
-4.   Bachelor degree
-5.   Masters degree
+1.  Some High School/High School --\> I did not find any results for this in a research. Probably High School might be a bit better than some High school
+2.  Some College
+3.  Associates degree
+4.  Bachelor degree
+5.  Masters degree
 
 This order of parental education is not represented in the performance of students performance.
 
@@ -663,15 +663,74 @@ arrange(desc(med_score))
 
 Students who made a test preparation course have much better results than students who didnt. But the difference is much smaller than in the lunch variable.
 
-### Visualizations
+### Visualizations 
 
 In this chapter plots are created in order to learn from the data and find correlations between the variables.
 
+In order to select the correct visualizations the visualizations are based on [From Data to Viz](https://www.data-to-viz.com)
+
 First of all lets start with the plot of the target variable. How is it distributed in the value range?
 
-```{r}
+```{r dense_plot_avg_score}
+library (ggplot2)
+ggplot(data = df_explo, mapping = aes(x = avg_score)) +
+  geom_density() +
+  labs(title = "Students performance in exams", 
+       subtitle= "Average performance of math, writing and reading exam",
+       x = "Average score",
+       y = "Density") +
+  theme_minimal()+
+  theme (text = element_text(size=8),
+         legend.key.size = unit(5, "mm"))
+
 
 ```
+
+The results are quite similar compared to what was learned in the R queries. Highest density of the average_score is at the median score. There are only a small amount of scores which are below 40.
+
+For this project the visualizations of categorical and the target variable will be made with box plots, dentistry plots, violin plots and histograms in order to show the different possibilities in R. Therefore the variables will be displayed in different graphical visualizations. 
+
+**Impact Gender on Avg_score**
+
+```{r avg_score_gender_histogram}
+
+ggplot(data = df_explo, mapping = aes(x = avg_score, fill=gender)) +
+  geom_histogram(bins=20) +
+  labs(title = "Students average performance in exams", 
+       subtitle= "By gender",
+       x = "Average score",
+       y = "count") +
+  theme_minimal()+
+  theme (text = element_text(size=8),
+         legend.key.size = unit(5, "mm"))
+```
+
+
+**Impact ethnic_group on Avg_score**
+
+
+
+**Impact parent_education on Avg_score**
+
+
+**Impact lunch on Avg_score**
+
+
+
+**Impact test preparation course on Avg_score**
+
+
+
+
+### Visualizations (incl. perform results)
+
+This chapter is used to show the possibilities of data visualizations if we could use numeric variables. Therefore plots correlations will be made with those variables - even though they must not be included into the later models.
+
+In order to select the correct visualizations the visualizations are based on [From Data to Viz](https://www.data-to-viz.com)
+
+
+
+
 
 ## Define schema
 
