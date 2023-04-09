@@ -882,11 +882,73 @@ cor_res %>%
 ```
 Math score has the lowest impact on the average score, while writing and reading scores have the highest. As learned in the correlation matrix before: Writing and Reading are correlating with each other. Therefore this result was expectable.
 
+Now lets analyze the numeric variables in more detail. Moreover the categorical variable "lunch" shall be added as well.
+
+```{r visual_inspection}
+library(GGally)
+df_explo %>% 
+  select(avg_score, lunch, 
+         math_score, reading_score, writing_score) %>% 
+  ggscatmat(color="lunch", corMethod = "spearman",
+            alpha=0.4)
+```
+
+As the numeric variables are already so good in predicting the avg_score, the impact of the lunch type is no longer seen. In the analysis before it was clearly seen that this variable has a big impact on the avg_score.
+
 ## Define schema
+
+The main parts of defining the schema were already performed within the Data Ingestion chapter.Nevertheless some of the check functions of tidyverse will be applied here.
+
+```{r check_class}
+#check_class(df_explo)
+```
+https://recipes.tidymodels.org/reference/index.html#check-functions
 
 ## Anomaly detection
 
+Within this chapter the data is checked for outliers and missing data. This is done in the original dataframe. This is done so that it can be learned which steps need to be made in the pipeline definitions. No changes are made with the data, it is only checked how to deal with detected issues. 
+
+### Missing values
+
+This was already performed in the Data Ingestion chapter, nevertheless it is performed again in this chapter.
+
+```{r missing_values_data}
+is.na(exams) %>%
+  colSums()
+```
+There are no missing data/rows in the available data.
+
+### Outlier and novelty detection
+
+Lets check our data for outliers - as it was already made during the Data analysis. For the categorical data there are no outliers included, as they are only spread through a limited set of levels. Moreover there is no level included which is underrepresented. Therefore the check for outliers is only made in the target variable.
+
+Lets create a plot of the target variable in box plots with all categorical data.
+
+```{r outlier_detection}
+for (i in features){
+    
+    p <- ggplot(df_explo, aes_string(x=i, y=y_label)) +
+      geom_boxplot(fill="steelblue")
+      
+    plot(p)
+  }
+```
+
+It can be seen that there are certain outliers included in the available data. These outliers are certain students who performed very bad in the exams. The training data contains outliers, these are defined as observations which are far from the others. Outlier detection estimators thus try to fit the regions where the training data is the most concentrated, ignoring the deviant observations.
+
+These outliers make it hard for the later model to predict the result correctly. The learning from this chapter shall be included in the later model creation.
+
 ## Feature engineering
+
+
+
+### Feature transformation
+
+### Feature extraction
+
+### Costum feature extraction
+
+### Final data pipeline
 
 # Model
 
