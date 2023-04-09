@@ -674,7 +674,7 @@ First of all lets start with the plot of the target variable. How is it distribu
 ```{r dense_plot_avg_score}
 library (ggplot2)
 ggplot(data = df_explo, mapping = aes(x = avg_score)) +
-  geom_density() +
+  geom_density(fill="lightblue") +
   labs(title = "Students performance in exams", 
        subtitle= "Average performance of math, writing and reading exam",
        x = "Average score",
@@ -687,6 +687,35 @@ ggplot(data = df_explo, mapping = aes(x = avg_score)) +
 ```
 
 The results are quite similar compared to what was learned in the R queries. Highest density of the average_score is at the median score. There are only a small amount of scores which are below 40.
+
+Now lets have a look on our features. For this use case we only got categorical features in our data set. Therefore lets have a look on their levels und the uniqueness. 
+
+```{r cat_features_bar_plot}
+for (i in features){
+  
+  p <- ggplot(df_explo, aes_string(x=i)) +
+  geom_bar(fill="lightblue")+
+    labs(title = "Students average performance in exams", 
+       y= "count") +
+  theme_minimal()+
+  theme (text = element_text(size=8),
+         legend.key.size = unit(5, "mm"))
+  
+  plot(p)
+  }
+```
+
+It can be seen that there the variable **gender** is equally distributed on male and female.
+
+The **ethnic group** has the most occurrences within group C, while group A and group E have a smaller occur ency. Especially group A has only about 50 occurrences.
+
+Regarding the **parents education**- this feature has six levels which are not equally distributed. Four levels has a almost similar occurrence, while the level Bachelors and Masters degree have the lowest occurrences.
+
+The **lunch** type has two levels which are not equally distributed, about 66% occurrences are the standard lunch types, while 33% are the free/reduced type of lunch. This is actually quite a high number of reduced/free lunch meals.
+
+The amount of students who performaed a **test preparation** course is about 35% while 65% of students did not make any test prepration. 
+
+Lets have a look on the impact of these features and their levels on the target variable **average score**
 
 For this project the visualizations of categorical and the target variable will be made with box plots, density plots, violin plots and histograms in order to show the different possibilities in R. Therefore the variables will be displayed in different graphical visualizations. In general box plots would be a very good way to visualize these results, but for demonstration purposes different visualizations are made.
 
@@ -730,7 +759,7 @@ The different ethnic groups and their impact on the avg_score shall be displayed
 library(forcats)
 ggplot(df_explo, aes(x = fct_reorder(
   ethnic_group, avg_score, .fun = median, .desc=TRUE), y=avg_score)) +
-  geom_boxplot() +
+  geom_boxplot(fill="lightblue") +
   labs(title = "Students average performance in exams", 
        subtitle= "By ethnic group",
        x = "Ethnic group",
@@ -751,9 +780,9 @@ This variable in their influence on the average score shall be visualized in a v
 
 ggplot(df_explo, aes(x = fct_reorder(
   parent_education, avg_score, .fun = median, .desc=TRUE), y=avg_score)) +
-  geom_violin() +
+  geom_violin(fill="lightblue") +
   labs(title = "Students average performance in exams", 
-       subtitle= "By ethnic group",
+       subtitle= "By parents education",
        x = "Parent Education",
        y = "Average score in exams") +
   theme_minimal()+
@@ -784,7 +813,7 @@ ggplot(df_explo, mapping = aes (x=avg_score, fill=lunch)) +
 
 ```
 
-
+It can be clearly seen that the students who completed the test preparation course have a much better performance than those who did not. Also the students who have a standard meal are performing better than those who are having only a free or reduced meal. If both features are combined it can be clearly seen that students who made the test preparation course AND have a standard meal are performing much better than those students who did not make a test preparation course and who only get a free/reduced meal. These two features have a big impact on the target variable.
 
 ### Visualizations (incl. perform results)
 
@@ -792,9 +821,66 @@ This chapter is used to show the possibilities of data visualizations if we coul
 
 In order to select the correct visualizations the visualizations are based on [From Data to Viz](https://www.data-to-viz.com)
 
+Lets start with the students performance in math compared to their performance in the average exam score.
 
+```{r math_avg_score_scatter}
+ggplot(df_explo, aes(math_score, avg_score))+
+  geom_point(color="lightblue")+
+  labs(title = "Students average performance in exams", 
+       subtitle= "Average performance and math performance",
+       x = "Average score in maths",
+       y = "Average score in exams") +
+  theme_minimal()+
+  theme (text = element_text(size=8),
+         legend.key.size = unit(5, "mm"))
+```
 
+It can be clearly seen that there is a linear relationship between the math performance and the average performance (which makes sense as the average performance is based on the math performance, but this is made for demonstration purposes). The correlation between those variables is very strong.
 
+Lets add two further variables to this plot. Lets add the type of lunch and the test preparation as well.Moreover it shall be wrapped by the ethnic group.
+
+```{r impact_avg_score_scatter}
+ggplot(df_explo, aes(math_score, avg_score, color=lunch, shape=test_prep))+
+  geom_point()+
+  facet_wrap(~ethnic_group)+
+  labs(title = "Students average performance in exams", 
+       subtitle= "By lunch type, ethnic_group and if test preparation was made",
+       x = "Average score in maths",
+       y = "Average score in exams") +
+  theme_minimal()+
+  theme (text = element_text(size=8),
+         legend.key.size = unit(5, "mm"))
+```
+
+It can be seen that the performance in group E and D is the best, as well as that students with standard lunch and test preparation course are performing better.
+
+Now lets have a look on the correlations between our three exam scores and the average exam score.
+
+```{r correlations}
+df_explo %>% 
+  select(where(is.numeric)) %>% # only select numerical data
+  vis_cor(cor_method = "spearman", na_action = "pairwise.complete.obs")
+```
+
+It can be seen that all variables have a huge correlation with each other. Students which are performing good in one exam are likely to perform goog in all exams. But it can be also seen that the correlation between writing and reading is much higher than the correlation to math and the other exams.
+
+Lets have a look on the numbers:
+
+```{r correlation_numbers}
+library(corrr)
+
+cor_res <- 
+  df_explo %>%
+  select(where(is.numeric)) %>% 
+  correlate(method = "spearman", use = "pairwise.complete.obs") 
+
+cor_res %>% 
+  select(term, avg_score) %>% 
+  filter(!is.na(avg_score)) %>% #  dependent variable 
+  arrange(avg_score) %>% # sorting
+  fashion() # print 
+```
+Math score has the lowest impact on the average score, while writing and reading scores have the highest. As learned in the correlation matrix before: Writing and Reading are correlating with each other. Therefore this result was expectable.
 
 ## Define schema
 
