@@ -663,7 +663,7 @@ arrange(desc(med_score))
 
 Students who made a test preparation course have much better results than students who didnt. But the difference is much smaller than in the lunch variable.
 
-### Visualizations 
+### Visualizations
 
 In this chapter plots are created in order to learn from the data and find correlations between the variables.
 
@@ -688,7 +688,7 @@ ggplot(data = df_explo, mapping = aes(x = avg_score)) +
 
 The results are quite similar compared to what was learned in the R queries. Highest density of the average_score is at the median score. There are only a small amount of scores which are below 40.
 
-Now lets have a look on our features. For this use case we only got categorical features in our data set. Therefore lets have a look on their levels und the uniqueness. 
+Now lets have a look on our features. For this use case we only got categorical features in our data set. Therefore lets have a look on their levels und the uniqueness.
 
 ```{r cat_features_bar_plot}
 for (i in features){
@@ -713,7 +713,7 @@ Regarding the **parents education**- this feature has six levels which are not e
 
 The **lunch** type has two levels which are not equally distributed, about 66% occurrences are the standard lunch types, while 33% are the free/reduced type of lunch. This is actually quite a high number of reduced/free lunch meals.
 
-The amount of students who performaed a **test preparation** course is about 35% while 65% of students did not make any test prepration. 
+The amount of students who performaed a **test preparation** course is about 35% while 65% of students did not make any test prepration.
 
 Lets have a look on the impact of these features and their levels on the target variable **average score**
 
@@ -749,6 +749,7 @@ ggplot(data = df_explo, mapping = aes(x = avg_score, fill=gender)) +
   theme (text = element_text(size=8),
          legend.key.size = unit(5, "mm"))
 ```
+
 Now it can be seen that female are performing much better than the males. There are a lot of test results above 80, while the males have a peak at above 75. But it is interesting that the are much more males who achieve 100 points in the exam compared to the women.
 
 **Impact ethnic_group on Avg_score**
@@ -770,7 +771,6 @@ ggplot(df_explo, aes(x = fct_reorder(
 ```
 
 Actually the results from the r queries can be confirmed. Best results are in `group E` and the groups `A`, `B` and `C` have almost the same values. Even though there are some outliers in `group C`. The mean for these three groups is almost the same, but it can be seen that `group B` has different whiskers, here the IQR range is spreaded the most.
-
 
 **Impact parent_education on Avg_score**
 
@@ -795,7 +795,7 @@ Quite similar results as in the R queries. It can be seen that the `associates d
 
 **Impact lunch on Avg_score**
 
-The impact of the lunch type shall be displayed within a density plot. Moreover, this plot shall be extended by the **Impact test preparation course on Avg_score**. 
+The impact of the lunch type shall be displayed within a density plot. Moreover, this plot shall be extended by the **Impact test preparation course on Avg_score**.
 
 ```{r lunch_test_prep_on_avg_score_dense}
 
@@ -880,6 +880,7 @@ cor_res %>%
   arrange(avg_score) %>% # sorting
   fashion() # print 
 ```
+
 Math score has the lowest impact on the average score, while writing and reading scores have the highest. As learned in the correlation matrix before: Writing and Reading are correlating with each other. Therefore this result was expectable.
 
 Now lets analyze the numeric variables in more detail. Moreover the categorical variable "lunch" shall be added as well.
@@ -902,11 +903,12 @@ The main parts of defining the schema were already performed within the Data Ing
 ```{r check_class}
 #check_class(df_explo)
 ```
+
 https://recipes.tidymodels.org/reference/index.html#check-functions
 
 ## Anomaly detection
 
-Within this chapter the data is checked for outliers and missing data. This is done in the original dataframe. This is done so that it can be learned which steps need to be made in the pipeline definitions. No changes are made with the data, it is only checked how to deal with detected issues. 
+Within this chapter the data is checked for outliers and missing data. This is done in the original dataframe. This is done so that it can be learned which steps need to be made in the pipeline definitions. No changes are made with the data, it is only checked how to deal with detected issues.
 
 ### Missing values
 
@@ -916,6 +918,7 @@ This was already performed in the Data Ingestion chapter, nevertheless it is per
 is.na(exams) %>%
   colSums()
 ```
+
 There are no missing data/rows in the available data.
 
 ### Outlier and novelty detection
@@ -940,13 +943,39 @@ These outliers make it hard for the later model to predict the result correctly.
 
 ## Feature engineering
 
-
+All topics which were learned/discovered within the earlier steps shall be used now for the data preprocessing and feature engineering. This will be made with data pipelines. Those are generated with the tidymodels package *recipes* and *workflows*. The feature selection part wont be included here, as the features are selected within the modeling part.
 
 ### Feature transformation
 
+Target of feature transformations - for this project and maybe new data in the future is to get red id:
+
+-   missing values
+-   outliers
+-   one hot encoding of categorical variables
+
+Other datasets would need further steps which do not apply in this project due to the data structure. Those other steps would be:
+
+-   get data on the same scale
+
+-   standardize the data
+
+-   handle skewed distribution of data
+
+-   take care if the data might be censored at certain limits (e.g. at the low and or high of the data)
+
+**Missing values:** As we do not have any missing data in the data set, this step could be skipped. But in case that there might be newer data in the future which could have missing data, this should be added to the pipeline. There are three ways to handle missing data: Delete the observation with missing data, remove the whole attribute or impute it with some other values, e.g. the mean, median, etc. For this project missing data shall be dropped within the pipeline.
+
+**Outliers:** Some outliers are included in the data set. For handling those the target is to test the experimental 3-rd party package from [*tidy_outlier*](https://github.com/brunocarlin/tidy.outliers)
+
+**One-Hot_encoding:** Our available categorical data needs to be converted to numbers as alorithms prefer to work with numbers. For this the tidy models [step_dummy](https://recipes.tidymodels.org/articles/Dummies.html) function will be used.
+
 ### Feature extraction
 
-### Costum feature extraction
+Some features might include relevant information which could be redundant. That would be there wont be any benefit in adding both features in the model, if the target variable can be determined with one of those.
+
+Therefor it makes sense to remove features which have large correlations with each other. But this is more likely at numeric features. In the feature extraction this can be made by using the ratio of two two predictors or with more complex methods like principal component analysis.
+
+This also makes sense to use in case that the number of features is high.
 
 ### Final data pipeline
 
