@@ -973,11 +973,52 @@ Other datasets would need further steps which do not apply in this project due t
 
 Some features might include relevant information which could be redundant. That would be there wont be any benefit in adding both features in the model, if the target variable can be determined with one of those.
 
-Therefor it makes sense to remove features which have large correlations with each other. But this is more likely at numeric features. In the feature extraction this can be made by using the ratio of two two predictors or with more complex methods like principal component analysis.
+Therefore it makes sense to remove features which have large correlations with each other. But this is more likely at numeric features. In the feature extraction this can be made by using the ratio of two two predictors or with more complex methods like principal component analysis.
 
 This also makes sense to use in case that the number of features is high.
 
+For this usecase this is only partly applicable, as there are only categorical features available.
+
 ### Final data pipeline
+
+In the following pipeline all steps for the feature engineering are included:
+
+```{r}
+devtools::install_github("brunocarlin/tidy.outliers") 
+```
+
+```{r pipeline}
+
+library(recipes)
+exam_rec <-
+  recipe(avg_score ~ +gender  + ethnic_group + parent_education + lunch + test_prep, data = train_data) %>% #definition of features and target variable
+  step_naomit(everything(), skip = TRUE) %>% #remove missing observations
+  step_dummy(all_nominal()) %>% #converts factors into numeric binary (0 and 1) variables
+  step_corr(all_predictors(), threshold = 0.7, method = "spearman") # remove correlated features (maybe not necessary as only character features as input)
+```
+
+Lets have on the current set of variables and roles:
+
+```{r summary_recipe}
+
+summary(exam_rec)
+
+```
+
+Lets check if all preprocessing steps worked as intended:
+
+```{r juice}
+
+prepped_data <- 
+  exam_rec %>% # use the recipe object
+  prep() %>% # perform the recipe on training data
+  juice() # extract only the preprocessed dataframe 
+
+glimpse(prepped_data)
+
+```
+
+The recipe was successful! The character columns were successfully changed to dummy variables, so that the models can work with them.
 
 # Model
 
