@@ -1050,9 +1050,89 @@ Regarding the model specification three steps need to be made:
 2.  Set the engine (see above)
 3.  Set the mode regression (as the target is to perform a regression)
 
-## Model training & tuning
+The further chapters are based on the documentation of the following pages:
 
-## Evaluate model
+-   [Tidymodels: Bossted Tree](https://parsnip.tidymodels.org/reference/boost_tree.html)
+
+-   [Tidymodels: Linear Regression](https://parsnip.tidymodels.org/reference/linear_reg.html)
+
+-   [Tidymodels: Single layer neural network](https://parsnip.tidymodels.org/reference/mlp.html)
+
+-   [Tidymodels: Tune](https://tune.tidymodels.org)
+
+### Boosted Tree
+
+At first the target is to keep the model simpel, thats why the model will be created with standard settings:
+
+```{r spec_xgboost_1}
+library(tidymodels)
+library(xgboost)
+xgb_spec_1 <- 
+  boost_tree() %>% 
+  set_engine("xgboost") %>% 
+  set_mode("regression") 
+```
+
+Add the created model into a workflow:
+
+```{r workflow_xboost_1}
+
+xgb_workflow_1 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(xgb_spec_1)
+```
+
+### Linear Regression
+
+### Single Layer Neural Network
+
+## Model training & evaluation
+
+### Boosted tree
+
+```{r res_xgboost_1}
+set.seed(50)
+
+xgb_res_1 <-
+  xgb_workflow_1 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+xgb_res_1 %>% collect_metrics(summarize = TRUE)
+```
+
+How are these metrics spreading through the cross_validation:
+
+```{r res_xgboost_cv}
+xgb_res_1 %>% collect_metrics(summarize = FALSE)
+```
+
+There are some smaller differences between these folds, but overall those differences are not to big.
+
+Lets visualize these metrics into a plot. For this the predictions are plotted on the y-axis and the actual values on the x-axis. If a perfect model would have been created, all points would be on the diagonal line
+
+```{r plot_xgboost_res_1}
+
+assess_xgb_res_1 <- collect_predictions(xgb_res_1)
+
+assess_xgb_res_1 %>% 
+  ggplot(aes(x = avg_score, y = .pred)) +   geom_point(alpha = .15) +
+  geom_abline(col = "blue") + 
+  coord_obs_pred() + 
+  ylab("Predicted") +
+  xlab("Actual Average Exam Score")
+
+
+
+```
+
+If we consider that this is the first created model and that there are only cetagorical features in the dataset, this result not that bad. Lets see in the next chapter how the Boosted Tree Performance can be increased.
+
+## Model Tuning
+
+## Final Fit Model
 
 # Deployment
 
