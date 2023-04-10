@@ -983,8 +983,9 @@ For this usecase this is only partly applicable, as there are only categorical f
 
 In the following pipeline all steps for the feature engineering are included:
 
-```{r}
-devtools::install_github("brunocarlin/tidy.outliers") 
+```{r get_tidy_outliers}
+#devtools::install_github("brunocarlin/tidy.outliers") 
+library(tidy.outliers)
 ```
 
 ```{r pipeline}
@@ -994,6 +995,9 @@ exam_rec <-
   recipe(avg_score ~ +gender  + ethnic_group + parent_education + lunch + test_prep, data = train_data) %>% #definition of features and target variable
   step_naomit(everything(), skip = TRUE) %>% #remove missing observations
   step_dummy(all_nominal()) %>% #converts factors into numeric binary (0 and 1) variables
+  step_outliers_maha(all_numeric(), -all_outcomes()) %>%
+  step_outliers_lookout(all_numeric(),-contains(r"(.outliers)"),-all_outcomes()) %>%
+  step_outliers_remove(contains(r"(.outliers)")) %>%
   step_corr(all_predictors(), threshold = 0.7, method = "spearman") # remove correlated features (maybe not necessary as only character features as input)
 ```
 
@@ -1018,7 +1022,7 @@ glimpse(prepped_data)
 
 ```
 
-The recipe was successful! The character columns were successfully changed to dummy variables, so that the models can work with them.
+The recipe was successful! The character columns were successfully changed to dummy variables, so that the models can work with them. Moreover three observations were removed as they were identified as outliers.
 
 # Model
 
