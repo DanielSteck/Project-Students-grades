@@ -1026,7 +1026,29 @@ The recipe was successful! The character columns were successfully changed to du
 
 # Model
 
+After the data and features have been preprocessed in a format which is ready for the modeling algorithms, they can be used in the model selection process.
+
+Target for the Model and Deployment phase is to perform all steps in the usual way with tidymodels and afterwards one time by using MLFfow.
+
 ## Select algorithm
+
+The target is to predict the *avg_score* of students in exams. This outcome variable is numeric. Therefore a **Regression** model needs to be selected for this usecase. The following page is used to select three different model types and their engines: [Tidymodels: Search parsnip models](https://www.tidymodels.org/find/parsnip/)
+
+The following three models were selected:
+
+-   Boosted Tree (XGBoost)
+
+-   Linear Regression (Keras)
+
+-   Single layer neural network (Keras)
+
+## Model Specification
+
+Regarding the model specification three steps need to be made:
+
+1.  Pick a model type (see above)
+2.  Set the engine (see above)
+3.  Set the mode regression (as the target is to perform a regression)
 
 ## Model training & tuning
 
