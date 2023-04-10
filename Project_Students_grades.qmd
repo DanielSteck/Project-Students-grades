@@ -1038,9 +1038,9 @@ The following three models were selected:
 
 -   Boosted Tree (XGBoost)
 
--   Linear Regression (Keras)
+-   Linear Regression (~~Keras~~ - changed to glmnet as I had issues to get keras and tensorflow running. For this a python installation and connection is needed)
 
--   Single layer neural network (Keras)
+-   Single layer neural network (~~Keras~~ - changed to nnet, see above)
 
 ## Model Specification
 
@@ -1062,7 +1062,7 @@ The further chapters are based on the documentation of the following pages:
 
 ### Boosted Tree
 
-At first the target is to keep the model simpel, thats why the model will be created with standard settings:
+At first the target is to keep the model simple, that's why the model will be created with standard settings:
 
 ```{r spec_xgboost_1}
 library(tidymodels)
@@ -1085,7 +1085,48 @@ xgb_workflow_1 <-
 
 ### Linear Regression
 
+At first the target is to keep the model simple, that's why the model will be created with standard settings:
+
+```{r spec_lin_reg_1}
+library(keras)
+library(tensorflow)
+lin_spec_1 <- 
+  linear_reg(penalty = 0.1, mixture = 1) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("regression") 
+```
+
+Add the created model into a workflow:
+
+```{r workflow_lin_reg_1}
+
+lin_reg_workflow_1 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(lin_spec_1)
+```
+
 ### Single Layer Neural Network
+
+At first the target is to keep the model simple, that's why the model will be created with standard settings:
+
+```{r spec_neural_1}
+
+neural_spec_1 <- 
+  mlp() %>% 
+  set_engine("nnet") %>% 
+  set_mode("regression") 
+```
+
+Add the created model into a workflow:
+
+```{r workflow_lin_reg_1}
+
+neural_workflow_1 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(neural_spec_1)
+```
 
 ## Model training & evaluation
 
@@ -1128,7 +1169,116 @@ assess_xgb_res_1 %>%
 
 ```
 
-If we consider that this is the first created model and that there are only cetagorical features in the dataset, this result not that bad. Lets see in the next chapter how the Boosted Tree Performance can be increased.
+If we consider that this is the first created model and that there are only categorical features in the dataset, this result not that bad. Lets see in the next chapter how the Boosted Tree Performance can be increased. Further steps are to adapt the hyperparameters and the features which are added into the model.
+
+### Linear Regression
+
+```{r res_lin_reg_1}
+set.seed(50)
+
+lin_reg_res_1 <-
+  lin_reg_workflow_1 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+
+lin_reg_res_1 %>% collect_metrics(summarize = TRUE)
+```
+
+How are these metrics spreading through the cross_validation:
+
+```{r res_lin_reg_cv}
+lin_reg_res_1 %>% collect_metrics(summarize = FALSE)
+```
+
+There are some smaller differences between these folds, but overall those differences are not to big. Overall these metrics changed compared to the simple XGBoost model. The First model had a higher RMSE and a lower RSQ value.
+
+Lets visualize these metrics into a plot. For this the predictions are plotted on the y-axis and the actual values on the x-axis. If a perfect model would have been created, all points would be on the diagonal line
+
+```{r plot_lin_reg_res_1}
+
+assess_lin_reg_res_1 <- collect_predictions(lin_reg_res_1)
+
+assess_lin_reg_res_1 %>% 
+  ggplot(aes(x = avg_score, y = .pred)) +   geom_point(alpha = .15) +
+  geom_abline(col = "blue") + 
+  coord_obs_pred() + 
+  ylab("Predicted") +
+  xlab("Actual Average Exam Score")
+
+
+
+```
+
+### Single Layer Perceptron
+
+```{r res_neural_1}
+set.seed(50)
+
+neural_res_1 <-
+  neural_workflow_1 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+neural_res_1 %>% collect_metrics(summarize = TRUE)
+```
+
+How are these metrics spreading through the cross_validation:
+
+```{r res_xgboost_cv}
+neural_res_1 %>% collect_metrics(summarize = FALSE)
+```
+
+There are some smaller differences between these folds, but overall those differences are not to big.
+
+This model has the highest RSME score. The RSQ score is simiar to the result of the XGBoost.
+
+Lets visualize these metrics into a plot. For this the predictions are plotted on the y-axis and the actual values on the x-axis. If a perfect model would have been created, all points would be on the diagonal line
+
+```{r plot_neural_res_1}
+
+assess_neural_res_1 <- collect_predictions(neural_res_1)
+
+assess_xgb_res_1 %>% 
+  ggplot(aes(x = avg_score, y = .pred)) +   geom_point(alpha = .15) +
+  geom_abline(col = "blue") + 
+  coord_obs_pred() + 
+  ylab("Predicted") +
+  xlab("Actual Average Exam Score")
+
+```
+
+## Feature Selection
+
+After the inital models were created and their results were visualized, lets have a look on the feature importances. Currently all available features were used for the model creation. Therefore lets analyze the Feature Importance and therefore it might be better to remove some features.
+
+```{r feature_importance}
+
+# ensure results are repeatable
+set.seed(50)
+# load the library
+library(mlbench)
+library(caret)
+# load the dataset
+data(train_data)
+# prepare training scheme
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+model <- train(avg_score~., data=train_data, method="gbm", preProcess="scale", trControl=control)
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+```
+
+```{r test}
+var_impf <- varImp(xgb_res_1, scale=FALSE)
+```
 
 ## Model Tuning
 
