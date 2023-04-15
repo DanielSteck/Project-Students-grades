@@ -3004,7 +3004,7 @@ See &lt;https://tidyselect.r-lib.org/reference/faq-external-vector.html&gt;.</co
 ✖ dplyr::lag()      masks stats::lag()
 ✖ yardstick::spec() masks readr::spec()
 ✖ recipes::step()   masks stats::step()
-• Learn how to get started at https://www.tidymodels.org/start/</code></pre>
+• Dig deeper into tidy modeling with R at https://www.tmwr.org</code></pre>
 </div>
 <details>
 <summary>Code</summary>
@@ -3443,7 +3443,7 @@ gendermale                          0.59114
 </div>
 </div>
 <p>It can be seen that the other exam scores are having the biggest influence on the average score - which totally makes sense as these variables are the basis for this variable. This is exactly why they need to be removed from the modelling, even though they have a huge feature importance.</p>
-<p>Beside these variables the most important features are the <code>lunch</code> <code>test_preparation</code>variables. Also an important features seems to be the <code>ethnic_group</code> but only for one level (Group E). The other levels have only a very small influence on the result. Also the <code>gender</code> variable seems to be a bit important. The lowest feature importance is brought in by the <code>paren_education</code> as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.</p>
+<p>Beside these variables the most important features are the <code>lunch</code> <code>test_preparation</code>variables. Also an important features seems to be the <code>ethnic_group</code> but only for one level (Group E). The other levels have only a very small influence on the result. Also the <code>gender</code> variable seems to be a bit important. The lowest feature importance is brought in by the <code>parent_education</code> as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.</p>
 <p><strong>Forward Selection</strong></p>
 <p>Lets make a simple model in which a Forward selection if performed. The result of this shall determine the variables which are used in all models.</p>
 <div class="cell">
@@ -3552,6 +3552,17 @@ Selection Algorithm: forward
 </section>
 <section id="model-tuning" class="level2">
 <h2 class="anchored" data-anchor-id="model-tuning">Model Tuning</h2>
+<p>This chapter will cover the possibilities of model tuning. For this the three created basis models will be tuned. In the first step the adaption of parameters is made manually. In the second step the tune package is used. For the model performance only the numeric results will be compared. No further analysis of the visualization of model results will be made. At the end the model with the best performance will be used to make a final fit on the training data.</p>
+<p>As a comparison a model which only contains the mean will be created. This will be used as a simple comparison if the created model performs better than a simple guess of the mean for all exam scores.</p>
+<section id="boosted-tree-2" class="level3">
+<h3 class="anchored" data-anchor-id="boosted-tree-2">Boosted Tree</h3>
+</section>
+<section id="linear-regression-2" class="level3">
+<h3 class="anchored" data-anchor-id="linear-regression-2">Linear regression</h3>
+</section>
+<section id="single-layer-neural-network-1" class="level3">
+<h3 class="anchored" data-anchor-id="single-layer-neural-network-1">Single Layer Neural Network</h3>
+</section>
 </section>
 <section id="final-fit-model" class="level2">
 <h2 class="anchored" data-anchor-id="final-fit-model">Final Fit Model</h2>
@@ -5043,7 +5054,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb187-1280"><a href="#cb187-1280" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb187-1281"><a href="#cb187-1281" aria-hidden="true" tabindex="-1"></a>It can be seen that the other exam scores are having the biggest influence on the average score - which totally makes sense as these variables are the basis for this variable. This is exactly why they need to be removed from the modelling, even though they have a huge feature importance.</span>
 <span id="cb187-1282"><a href="#cb187-1282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1283"><a href="#cb187-1283" aria-hidden="true" tabindex="-1"></a>Beside these variables the most important features are the <span class="in">`lunch`</span> <span class="in">`test_preparation`</span>variables. Also an important features seems to be the <span class="in">`ethnic_group`</span> but only for one level (Group E). The other levels have only a very small influence on the result. Also the <span class="in">`gender`</span> variable seems to be a bit important. The lowest feature importance is brought in by the <span class="in">`paren_education`</span> as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.</span>
+<span id="cb187-1283"><a href="#cb187-1283" aria-hidden="true" tabindex="-1"></a>Beside these variables the most important features are the <span class="in">`lunch`</span> <span class="in">`test_preparation`</span>variables. Also an important features seems to be the <span class="in">`ethnic_group`</span> but only for one level (Group E). The other levels have only a very small influence on the result. Also the <span class="in">`gender`</span> variable seems to be a bit important. The lowest feature importance is brought in by the <span class="in">`parent_education`</span> as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.</span>
 <span id="cb187-1284"><a href="#cb187-1284" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb187-1285"><a href="#cb187-1285" aria-hidden="true" tabindex="-1"></a>**Forward Selection**</span>
 <span id="cb187-1286"><a href="#cb187-1286" aria-hidden="true" tabindex="-1"></a></span>
@@ -5093,17 +5104,27 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb187-1330"><a href="#cb187-1330" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb187-1331"><a href="#cb187-1331" aria-hidden="true" tabindex="-1"></a><span class="fu">## Model Tuning</span></span>
 <span id="cb187-1332"><a href="#cb187-1332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1333"><a href="#cb187-1333" aria-hidden="true" tabindex="-1"></a><span class="fu">## Final Fit Model</span></span>
+<span id="cb187-1333"><a href="#cb187-1333" aria-hidden="true" tabindex="-1"></a>This chapter will cover the possibilities of model tuning. For this the three created basis models will be tuned. In the first step the adaption of parameters is made manually. In the second step the tune package is used. For the model performance only the numeric results will be compared. No further analysis of the visualization of model results will be made. At the end the model with the best performance will be used to make a final fit on the training data.</span>
 <span id="cb187-1334"><a href="#cb187-1334" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1335"><a href="#cb187-1335" aria-hidden="true" tabindex="-1"></a><span class="fu"># Deployment</span></span>
+<span id="cb187-1335"><a href="#cb187-1335" aria-hidden="true" tabindex="-1"></a>As a comparison a model which only contains the mean will be created. This will be used as a simple comparison if the created model performs better than a simple guess of the mean for all exam scores.</span>
 <span id="cb187-1336"><a href="#cb187-1336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1337"><a href="#cb187-1337" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validate model</span></span>
+<span id="cb187-1337"><a href="#cb187-1337" aria-hidden="true" tabindex="-1"></a><span class="fu">### Boosted Tree</span></span>
 <span id="cb187-1338"><a href="#cb187-1338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1339"><a href="#cb187-1339" aria-hidden="true" tabindex="-1"></a><span class="fu">## Deploy model</span></span>
+<span id="cb187-1339"><a href="#cb187-1339" aria-hidden="true" tabindex="-1"></a><span class="fu">### Linear regression</span></span>
 <span id="cb187-1340"><a href="#cb187-1340" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1341"><a href="#cb187-1341" aria-hidden="true" tabindex="-1"></a><span class="fu">## Serve model</span></span>
+<span id="cb187-1341"><a href="#cb187-1341" aria-hidden="true" tabindex="-1"></a><span class="fu">### Single Layer Neural Network</span></span>
 <span id="cb187-1342"><a href="#cb187-1342" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb187-1343"><a href="#cb187-1343" aria-hidden="true" tabindex="-1"></a><span class="fu">## Monitor model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb187-1343"><a href="#cb187-1343" aria-hidden="true" tabindex="-1"></a><span class="fu">## Final Fit Model</span></span>
+<span id="cb187-1344"><a href="#cb187-1344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-1345"><a href="#cb187-1345" aria-hidden="true" tabindex="-1"></a><span class="fu"># Deployment</span></span>
+<span id="cb187-1346"><a href="#cb187-1346" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-1347"><a href="#cb187-1347" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validate model</span></span>
+<span id="cb187-1348"><a href="#cb187-1348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-1349"><a href="#cb187-1349" aria-hidden="true" tabindex="-1"></a><span class="fu">## Deploy model</span></span>
+<span id="cb187-1350"><a href="#cb187-1350" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-1351"><a href="#cb187-1351" aria-hidden="true" tabindex="-1"></a><span class="fu">## Serve model</span></span>
+<span id="cb187-1352"><a href="#cb187-1352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb187-1353"><a href="#cb187-1353" aria-hidden="true" tabindex="-1"></a><span class="fu">## Monitor model</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
