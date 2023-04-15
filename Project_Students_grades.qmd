@@ -1399,14 +1399,14 @@ The hyperparameter tuning is based on the following documentations:
 
 First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
 
+Note: Due to to many different model variations, I have decided to reduce the grid to a maximum of three hyper parameters. Instead of additional hyper parameters, it makes more sense to test more levels in between.
+
 ```{r spec_xgboost_3}
 xgb_spec_3 <- 
   boost_tree(
     trees = tune(),
     tree_depth = tune(),
-    min_n = tune(),
-    learn_rate = tune(),
-    loss_reduction = tune()) %>% 
+    min_n = tune()) %>% 
   set_engine("xgboost") %>% 
   set_mode("regression") 
 ```
@@ -1420,20 +1420,21 @@ The `tune()` is like a placeholder. After the tuning process single numeric valu
 
 In the next steps several models are trained using resampled data. Afterwards it is checked which model performs best. For this a grid of values is created:
 
+Note: Due to to many different model variations, I have decided to reduce the grid to a maximum of three hyper parameters. Instead of additional hyper parameters, it makes more sense to test more levels in between.
+
 ```{r xgboost_grid}
 xgboost_grid <- grid_regular(
   trees(),
   min_n(),
   tree_depth(),
-  learn_rate(),
-  loss_reduction(),
-  levels = 3
+  levels = 5
 )
 xgboost_grid
 ```
 
+Everything is ready to tune. `tune_grid` can be used to fit models for all different hyperparameters.
 
-
+Define the workflow with the model and recipe.
 
 ```{r workflow_xboost_3}
 
@@ -1443,17 +1444,39 @@ xgb_workflow_3 <-
   add_model(xgb_spec_3)
 ```
 
+Calculate the results with tune_grid.
+
 ```{r res_xgboost_3}
 set.seed(50)
 
 xgb_res_3 <-
   xgb_workflow_3 %>%
-  fit_resamples(
+  tune_grid(
     resamples = cv_folds,
+    grid = xgboost_grid,
                 control = control_resamples(save_pred = TRUE)
   )
-xgb_res_3 %>% collect_metrics(summarize = TRUE)
+
 ```
+
+The results of this can be filtered so that only the best 5 shall be displayed:
+
+```{r xgboost_best_5_hyperpara}
+xgb_res_3 %>%
+  show_best("rmse")
+```
+
+Moreover a selection for the best tree can be made. With that the single set with the best hyperparameters is selected:
+
+```{r xgboost_best}
+xgboost_best <- xgb_res_3 %>%
+  select_best("rmse")
+xgboost_best
+```
+The hyper parameter optimization with the tune package increased the RMSE a lot compared to the initial model. It has also increased to the manual selected hyper parameters.
+
+But it has to be said that I am skeptical regarding the selected best hyper parameters... Tree_depth of one and a min_n of two do not seem to be robust for new data...
+
 
 ### Linear regression
 
