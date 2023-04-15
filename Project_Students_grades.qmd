@@ -1480,7 +1480,254 @@ But it has to be said that I am skeptical regarding the selected best hyper para
 
 ### Linear regression
 
+For the Linear Regression model the following hyper parameters shall be adapted:
+
+-   Penalty: Amount of regularization - has no default and requires a single numeric value
+
+-   Mixture: Proportion of lasso penalty - default 1.0
+
+Source: [Linear regression via glmnet](https://parsnip.tidymodels.org/reference/details_linear_reg_glmnet.html)
+
+At first manually the hyper parameters are adapted and the result will be checked.
+
+First of all the model will be specified:
+
+```{r spec_lin_reg_2}
+lin_spec_2 <- 
+  linear_reg(penalty = 0.3, mixture = 0.7) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("regression") 
+```
+
+Afterwards the new model will be added to the workflow with the created recipe
+
+```{r workflow_lin_reg_2}
+
+lin_workflow_2 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(lin_spec_2)
+```
+
+```{r res_lin_reg_2}
+set.seed(50)
+
+lim_res_2 <-
+  lin_workflow_2 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+lim_res_2 %>% collect_metrics(summarize = TRUE)
+```
+The model performance was not improved... Now lets try it with the tune package.
+
+
+First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
+
+
+```{r spec_lin_reg_3}
+lin_spec_3 <- 
+  linear_reg(
+    penalty = tune(),
+    mixture = tune()) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("regression") 
+```
+
+have a look on the tune spec:
+
+```{r line_reg_tune_spec}
+lin_spec_3
+```
+The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyper parameter.
+
+In the next steps several models are trained using resampeled data. Afterwards it is checked which model performs best. For this a grid of values is created:
+
+```{r line_reg_grid}
+lin_grid <- grid_regular(
+  penalty(),
+  mixture(),
+  levels = 5
+)
+lin_grid
+```
+
+Everything is ready to tune. `tune_grid` can be used to fit models for all different hyperparameters.
+
+Define the workflow with the model and recipe.
+
+```{r workflow_lin_reg_3}
+
+lin_workflow_3 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(lin_spec_3)
+```
+
+Calculate the results with tune_grid.
+
+```{r res_lin_reg_3}
+set.seed(50)
+
+lin_res_3 <-
+  lin_workflow_3 %>%
+  tune_grid(
+    resamples = cv_folds,
+    grid = lin_grid,
+                control = control_resamples(save_pred = TRUE)
+  )
+
+```
+
+The results of this can be filtered so that only the best 5 shall be displayed:
+
+```{r lin_reg_best_5_hyperpara}
+lin_res_3 %>%
+  show_best("rmse")
+```
+
+Moreover a selection for the best tree can be made. With that the single set with the best hyper parameters is selected:
+
+```{r lin_reg_best}
+lin_best <- lin_res_3 %>%
+  select_best("rmse")
+lin_best
+```
+The hyper parameter optimization with the tune package increased the RMSE only by a minimum compared to the initial model. For the linear regression almost no improvement was possible.
+
+The model performance is similar to the xgboost model which was tuned with the tune package.
+
+
 ### Single Layer Neural Network
+
+For the Single Layer Neural Network the following hyperparameters shall be adapted:
+
+-   hidden_units: #Hidden units - default 0
+
+-   Penalty: Amount of regularization - default 0.0
+
+-   epochs: Amount of epochs for training - default 100L
+
+
+Source: [Multilayer perceptron via nnet](https://parsnip.tidymodels.org/reference/details_mlp_nnet.html)
+
+At first manually the hyper parameters are adapted and the result will be checked.
+
+First of all the model will be specified:
+
+```{r spec_neural_2}
+neural_spec_2 <- 
+  mlp(
+    hidden_units = 5,
+    penalty = 0.1,
+    epochs = 200) %>% 
+  set_engine("nnet") %>% 
+  set_mode("regression") 
+```
+
+Afterwards the new model will be added to the workflow with the created recipe
+
+```{r workflow_neural_2}
+
+neural_workflow_2 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(neural_spec_2)
+```
+
+```{r res_neural_2}
+set.seed(50)
+
+neural_res_2 <-
+  neural_workflow_2 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+neural_res_2 %>% collect_metrics(summarize = TRUE)
+```
+The model performance improved a bit the hyper parameters. The RMSE score could be reduced by 0.3. Now lets try it with the tune package.
+
+
+First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
+
+
+```{r spec_neural_3}
+neural_spec_3 <- 
+  mlp(
+    hidden_units = tune(),
+    penalty = tune(),
+    epochs = tune()) %>% 
+  set_engine("nnet") %>% 
+  set_mode("regression") 
+```
+
+have a look on the tune spec:
+
+```{r neural_tune_spec}
+neural_spec_3
+```
+The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyper parameter.
+
+In the next steps several models are trained using resampelled data. Afterwards it is checked which model performs best. For this a grid of values is created:
+
+
+```{r neural_grid}
+neural_grid <- grid_regular(
+  hidden_units(),
+  penalty(),
+  epochs(),
+  levels = 5
+)
+neural_grid
+```
+
+Everything is ready to tune. `tune_grid` can be used to fit models for all different hyperparameters.
+
+Define the workflow with the model and recipe.
+
+```{r workflow_neural_3}
+
+neural_workflow_3 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(neural_spec_3)
+```
+
+Calculate the results with tune_grid.
+
+```{r res_neural_3}
+set.seed(50)
+
+neural_res_3 <-
+  neural_workflow_3 %>%
+  tune_grid(
+    resamples = cv_folds,
+    grid = neural_grid,
+                control = control_resamples(save_pred = TRUE)
+  )
+
+```
+
+The results of this can be filtered so that only the best 5 shall be displayed:
+
+```{r neural_best_5_hyperpara}
+neural_res_3 %>%
+  show_best("rmse")
+```
+
+Moreover a selection for the best tree can be made. With that the single set with the best hyperparameters is selected:
+
+```{r neural_best}
+neural_best <- neural_res_3 %>%
+  select_best("rmse")
+neural_best
+```
+The hyper parameter optimization with the tune package increased the RMSE a lot compared to the initial model. It has also increased to the manual selected hyper parameters.
+
+But it has to be said that I am skeptical regarding the selected best hyper parameters... Tree_depth of one and a min_n of two do not seem to be robust for new data...
+
 
 ## Final Fit Model
 
