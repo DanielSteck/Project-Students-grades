@@ -1736,18 +1736,34 @@ All models have very similar performance metrics and the differences are minor. 
 
 In the next step the best model will be fitted a last time on the training data before the deployment phase can be started.
 
-## Final Fit Model
-
-In this chapter the best model from the modeling will be fitted on all training data instead of only the splitted cross-validation data set. The final fitted model can be deployed and validated on the test data.
-
-```{r model_last_fit}
-last_fit_model <- last_fit()
-```
-
-
 # Deployment
 
 ## Validate model
+
+In this chapter the best model from the modeling will be fitted on all training data instead of only the splitted cross-validation data set. The final fitted model can be deployed and validated on the test data.
+
+Add the model with the best results to the defined workflow:
+
+```{r workflow_best_model}
+workflow_best_model <-
+  lin_workflow_3 %>%
+  finalize_workflow(lin_best)
+```
+
+
+```{r model_last_fit}
+last_fit_model <- workflow_best_model %>% 
+  last_fit(data_split)
+```
+
+```{r}
+last_fit_model %>%
+    collect_metrics()
+```
+
+The performance of the model on test data is worse than it was on the training data. The RMSE metric increased from 12.1 to 12.77.
+
+
 
 ## Deploy model
 
