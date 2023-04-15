@@ -1726,10 +1726,24 @@ neural_best
 ```
 The hyper parameter optimization with the tune package increased the RMSE a lot compared to the initial model. It has also increased to the manual selected hyper parameters.
 
-But it has to be said that I am skeptical regarding the selected best hyper parameters... Tree_depth of one and a min_n of two do not seem to be robust for new data...
+The best models (based on lowest RMSE) are:
 
+1. RMSE: 12.10604 - Linear Regression
+2. RMSE: 12.10782 - XGBoost
+3. RMSE: 12.13196 - Neural Network
+
+All models have very similar performance metrics and the differences are minor. But the RMSE score is still quite high. Probably the available (only categorical) variables are not that good for predicting the performance of the students in the exams. This was also seen in the previous chapters with the R squared score which was only slightly above 0.25. 
+
+In the next step the best model will be fitted a last time on the training data before the deployment phase can be started.
 
 ## Final Fit Model
+
+In this chapter the best model from the modeling will be fitted on all training data instead of only the splitted cross-validation data set. The final fitted model can be deployed and validated on the test data.
+
+```{r model_last_fit}
+last_fit_model <- last_fit()
+```
+
 
 # Deployment
 
