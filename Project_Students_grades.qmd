@@ -1336,6 +1336,36 @@ As a comparison a model which only contains the mean will be created. This will 
 
 ### Boosted Tree
 
+For the Boosted Tree the following hyperparameters shall be adapted:
+
+-   Trees: Amount of trees in the ensemble - default 15
+
+-   Tree_depth: Maximal depth of the tree (e.g number of splits) - default 6
+
+-   min_n; minimum amount of data points for a further split - default 1
+
+-   Learn_rate: Learn-rate at which the algorithm adapts from iteration to iteration - default 0.3
+
+-   Loss_reduction: Minimum loss reduction - default 0.0
+
+Source: [Boosted trees via xgboost](https://parsnip.tidymodels.org/reference/details_boost_tree_xgboost.html)
+
+At first manually the hyper parameters are adapted and the result will be checked.
+
+First of all the model will be specified:
+
+```{r spec_xgboost_2}
+xgb_spec_2 <- 
+  boost_tree(
+    trees = 20,
+    tree_depth = 3,
+    min_n = 5,
+    learn_rate = 0.1,
+    loss_reduction = 0.05) %>% 
+  set_engine("xgboost") %>% 
+  set_mode("regression") 
+```
+
 ### Linear regression
 
 ### Single Layer Neural Network
