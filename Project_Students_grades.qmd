@@ -508,17 +508,7 @@ train_data <- training(data_split)
 test_data <- testing(data_split)
 ```
 
-Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data.
-
-```{r validation_set}
-set.seed(12)
-
-cv_folds <- 
-  vfold_cv(train_data,
-           v=5,
-           strata = y_label,
-           breaks = 6)
-```
+Cross Validation was removed here, as it makes more sense to add it after the data was prepared within the recipe.
 
 ## Analyze data
 
@@ -1024,6 +1014,18 @@ glimpse(prepped_data)
 
 The recipe was successful! The character columns were successfully changed to dummy variables, so that the models can work with them. Moreover three observations were removed as they were identified as outliers.
 
+Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data.
+
+```{r validation_set}
+set.seed(12)
+
+cv_folds <- 
+  vfold_cv(train_data,
+           v=5,
+           strata = y_label,
+           breaks = 6)
+```
+
 # Model
 
 After the data and features have been preprocessed in a format which is ready for the modeling algorithms, they can be used in the model selection process.
@@ -1120,7 +1122,7 @@ neural_spec_1 <-
 
 Add the created model into a workflow:
 
-```{r workflow_lin_reg_1}
+```{r workflow_neural_1}
 
 neural_workflow_1 <-
   workflow() %>%
@@ -1227,7 +1229,7 @@ neural_res_1 %>% collect_metrics(summarize = TRUE)
 
 How are these metrics spreading through the cross_validation:
 
-```{r res_xgboost_cv}
+```{r res_neural_cv}
 neural_res_1 %>% collect_metrics(summarize = FALSE)
 ```
 
@@ -1254,7 +1256,7 @@ assess_xgb_res_1 %>%
 
 After the inital models were created and their results were visualized, lets have a look on the feature importances. Currently all available features were used for the model creation. Therefore lets analyze the Feature Importance and therefore it might be better to remove some features.
 
-```{r feature_importance}
+```{r feature_importance_caret}
 
 # ensure results are repeatable
 set.seed(50)
@@ -1266,7 +1268,7 @@ data(train_data)
 # prepare training scheme
 control <- trainControl(method="repeatedcv", number=10, repeats=3)
 # train the model
-model <- train(avg_score~., data=train_data, method="gbm", preProcess="scale", trControl=control)
+model <- train(avg_score~ ., data=train_data, method="pls", preProcess="scale", trControl=control)
 # estimate variable importance
 importance <- varImp(model, scale=FALSE)
 # summarize importance
@@ -1276,9 +1278,55 @@ plot(importance)
 
 ```
 
-```{r test}
-var_impf <- varImp(xgb_res_1, scale=FALSE)
+It can be seen that the other exam scores are having the biggest influence on the average score - which totally makes sense as these variables are the basis for this variable. This is exactly why they need to be removed from the modelling, even though they have a huge feature importance.
+
+Beside these variables the most important features are the `lunch` `test_preparation`variables. Also an important features seems to be the `ethnic_group` but only for one level (Group E). The other levels have only a very small influence on the result. Also the `gender` variable seems to be a bit important. The lowest feature importance is brought in by the `paren_education` as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.
+
+**Forward Selection**
+
+Lets make a simple model in which a Forward selection if performed. The result of this shall determine the variables which are used in all models.
+
+```{r forward_selection}
+# Set seed for reproducibility
+set.seed(50)
+# Set up repeated k-fold cross-validation
+train.control <- trainControl(method = "cv", number = 50)
+# Train the model
+step.model <- train(avg_score ~ gender + ethnic_group + parent_education + lunch + test_prep, data = train_data,
+                    method = "leapForward", 
+                    tuneGrid = data.frame(nvmax = 1:5), # only add 5 variables - we only have 5 in the data
+                    trControl = train.control
+                    )
+step.model$results
 ```
+
+It can be seen that we get the best scores for RMSE and R squared if all variables are added into the model. But the difference between 3, 4 and 5 variables is very small. Moreover there is no consideration of the adjusted R squared. R squared is increasing most times if additional variables are added into the model while the adjusted R squared is adding a penalty for this.
+
+Nevertheless we will continue with the model which has the highest Rsquared and RMSE score. It needs to be added that both of these values are not that good.
+
+Lets display the best tuning values (nvmax) selected by the train() function.
+
+```{r best_tune}
+step.model$bestTune
+```
+
+Result from Forward selection is to use all 5 variables for modelling.
+
+Lets check in which order these variables are selected. This can be seen by the \* in the corresponding selection step.
+
+```{r summary_feature_selection}
+summary(step.model$finalModel)
+```
+
+Below is the result summed up. The rank of the most important features is:
+
+1.  Lunch
+2.  Test preparation
+3.  ethnic_group
+4.  parent_education
+5.  gender
+
+For better results of the model it would make sense to have a deeper analysis of the adjusted R squared score for the added variables. Moreover it would probably make sense to reduce the amount of levels in the variables. For example some ethnic groups have almost no difference between their performance on the average exam score.
 
 ## Model Tuning
 
