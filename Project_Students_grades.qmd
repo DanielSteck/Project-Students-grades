@@ -20,7 +20,7 @@ I, Daniel Steck, hereby state that I have not communicated with or gained inform
 
 # Introduction
 
-This project was created within the modul "Programming languages for Data Science. Moreover, this project will follow the data science lifecycle, which consists of four main topics:
+This project was created within the modul "Programming languages for Data Science.This project will follow the data science lifecycle, which consists of four main topics:
 
 -   Plan
 
@@ -33,6 +33,8 @@ This project was created within the modul "Programming languages for Data Scienc
 The main focus within this project will be on the **Deployment** part.
 
 ![Data Science Lifecycle](Images/Data_Science_lifecycle.PNG)
+
+The whole documentation of this project can be also found on [Github Repo: Student Grades](https://github.com/DanielSteck/Project-Students-grades)
 
 # Plan
 
@@ -85,7 +87,7 @@ FROM exams_sql;
 
 ```
 
-The dataset contains 1000 observation with eight variables. Three out of these 8 variables are the students performance on exams.
+The dataset contains 1000 observation with eight variables. Three out of these 8 variables are the students performance on different exams.
 
 Show the first 10 observations:
 
@@ -321,9 +323,13 @@ ORDER BY avg_exams_score;
 
 ## Data ingestion
 
+After the SQL queries were successfully made the next step is to continue with the steps in R. All following steps will be made within R.
+
 ### Data Import
 
-First of all the data will be imported
+First of all the data will be imported from a github repo. The initial data set can be found on Kaggle: [Kaggle: Student performance prediction](https://www.kaggle.com/datasets/rkiattisak/student-performance-in-mathematics?resource=download)
+
+In order to have the same data the whole time this dataset was downloaded and added to my github repo. in case that the kaggle dataset might be updated.
 
 ```{r read_csv}
 
@@ -337,7 +343,7 @@ exams <- read_csv(path, show_col_types = FALSE)
 
 ### Clean Data
 
-Lets have a look on the first rows to get an expression of the data
+Lets have a look on the first rows to get an expression of the data.
 
 ```{r first_rows}
 
@@ -347,7 +353,7 @@ exams %>%
 
 ```
 
-Before further steps can be made, the columns names need to be corrected, als they are including spaces and special characters. To remove those, the janitor package will be used.
+Before further steps can be made, the columns names need to be corrected, as they are including spaces and special characters. To remove those, the janitor package will be used.
 
 ```{r janitor}
 library(janitor)
@@ -363,7 +369,7 @@ exams <- rename(exams, parent_education = parental_level_of_education)
 exams <- rename(exams, test_prep = test_preparation_course)
 ```
 
-The available data consist of `r nrow(exams)`. The available features are `r names(exams)`.
+The available data consist of `r nrow(exams)` rows. The available features are `r names(exams)`.
 
 ### Missing data
 
@@ -373,7 +379,7 @@ Lets have a look on the description of the data to check the formats.
 glimpse (exams)
 ```
 
-Are there any missing data? lets check it:
+Is there any missing data? lets check it:
 
 ```{r missing_values_graphic}
 library(visdat)
@@ -443,14 +449,18 @@ As all other variables are not numeric, no further new variables can be created.
 
 ### Data overview
 
-After succesfully cleaning, formatting and checking the data, lets have an overview of the data with the package *skimr*:
+After successfully cleaning, formatting and checking the data, lets have an overview of the data with the package *skimr*:
 
 ```{r skimr}
 library(skimr)
 skim(exams)
 ```
 
-**beschreiben!**
+The available data set consists of 1000 rows with in total 9 columns. Four columns are numeric while five are a factor.
+
+Three factor variables have only two levels, while the other two have five and six levels. The distribution of the gender column in the two genders is quite balanced. The columns lunch and test_prep are split in 2:1 in their variables.
+
+The distribution of the numeric variables is very similar. in general the math_score has the lowest values compared to the other three scores, but the difference is not that big. The statistics for p25, p50, p75, p100 as well as the histograms are looking very similar and the differences are only minor. The reading score has the best results in the exam.
 
 ### Define features and outcome variable
 
@@ -458,7 +468,7 @@ In advance of the data splitting the definition of the target variable and the f
 
 The performance in the exams shall be predicted, for this the average performance is sufficient. As the target is to predict the performance, the variables for math, reading and writing score must not be included into the feature list.
 
-It would be also possible to make a use case which predicts e.g. the performance in math and also includes the students performance in the other exams. In this case only the general performance shall be predicted to see which generic attributes have a influence on students performance. Also exams are most time in a thigh schedule, which means that there wont be a lot of time between exams. Therefore it does not make sense to include also the performance in other exams to predict the performance in e.g. math. Moreover it takes some time until the results are available. So probably the students already had their exam before the receive the first results. Therefore the target in this project is the prediction of an average exam performance without including the performance in the other exams.
+It would be also possible to make a use case which predicts e.g. the performance in math and also includes the students performance in the other exams. In this case only the general performance shall be predicted to see which generic attributes have a influence on students performance. Also exams are most time in a thigh schedule, which means that there wont be a lot of time between exams. Therefore it does not make sense to include also the performance in other exams to predict the performance in e.g. math. Moreover it takes some time until the results are available. So probably the students already had their exam before they receive the first results. Therefore the target in this project is the prediction of an average exam performance without including the performance in the other exams.
 
 Nevertheless in the data exploration these other exam scores will be also included, but they wont go into the model.
 
@@ -475,7 +485,7 @@ Our data is now prepared for the data splitting and for building the pipelines.
 
 ## Data splitting
 
-Before the data exploration can be started, the data shall be splitted into a training and test set.
+Before the data exploration can be started, the data shall be split into a training and test set.
 
 To ensure that the training and test set is representative of the various categories of `avg_score` in the whole dataset, lets have a look on the histogram
 
@@ -486,7 +496,7 @@ exams %>%
 
 ```
 
-The splitted data shall included equally data from each of the bins.In order the have the same results for each run, a fix seed is set.
+The split data shall included equally data from each of the bins. In order the have the same results for each run, a fix seed is set.
 
 Target is to have 80% of the data for training and 20% for testing.
 
@@ -524,6 +534,10 @@ df_explo <- train_data
 
 ### R queries
 
+First of all the data is explored with R queries and afterwards the visualization part is made.
+
+Lets have a look on the statistics of the target variable *avg_score*\*:
+
 ```{r avg_score_statistics}
 df_explo %>%
   summarise(
@@ -540,11 +554,11 @@ df_explo %>%
   )
 ```
 
-The worst exam result is `20` while `100` is the best one. Moreover the mean and median values are almost similar and there is only a slight difference. This means that there are no big outliers included here (which is also easy to explain as 100 is the best possible performance). The IQR score of 20 tells us, that the difference between the 75th and 25th percentile is only havgin a difference of 20. So 50% of the data is within a difference of 20.
+The worst exam result is `20` while `100` is the best one. Moreover the mean and median values are almost similar and there is only a slight difference. This means that there are no big outliers included here (which is also easy to explain as 100 is the best possible performance in an exam). The IQR score of 20 tells us, that the difference between the 75th and 25th percentile is only having a difference of 20. So 50% of the data is within a difference of 20.
 
-25% of the students have a exam score of less than 59,3 and 25& of the students are above 79,3. 50% of the students are between 59,3 and 79,3.
+25% of the students have an exam score of less than 59,3 and 25& of the students are above 79,3. 50% of the students are between 59,3 and 79,3 (the IQR value can be seen here)
 
-Moreover it is interesing how the median, mean and iqr, q1, q3 values are distributed within the categorical variables.
+Moreover it is interesting how the median, mean and iqr, q1, q3 values are distributed within the categorical variables.
 
 Lets have a look on the gender variable and sort the results descending.
 
@@ -561,7 +575,7 @@ df_explo %>%
 arrange(desc(med_score))
 ```
 
-The performance of female students is better than the performance of male students.
+The performance of female students is better than the performance of male students. The mean score for females is 3.3 higher and the median score is 4.0 higher.
 
 Lets have a look on the ethic_group variable and sort the results descending.
 
@@ -597,15 +611,13 @@ arrange(desc(med_score))
 
 It can be seen that a higher parent education is not directly leading to a better exam score. The best students are within the `associate's degree` which is a lower education than the `master's degree` and `bachelor's degree`.
 
-Based on the given levels, this would be the ascending order of parent_eduaction (based on these links:
+Based on the given levels, this would be the ascending order of parent_education (based on these links):
 
 -   [Associates, Bachelors and Masters](https://thebestschools.org/degrees/college-degree-levels/#:~:text=A%20doctorate%20is%20the%20highest,research%20requirements%2C%20and%20a%20dissertation.)
 
 -   [High School and College](https://usahello.org/education/children/grade-levels/#gref)
 
 -   [College vs Associates degree](http://www.differencebetween.net/miscellaneous/difference-between-diploma-and-associate-degree/#:~:text=A%20student%20may%20take%20one,stone%20to%20a%20higher%20education.)
-
-)
 
 List of education level in a ascending order:
 
@@ -634,7 +646,7 @@ df_explo %>%
 arrange(desc(med_score))
 ```
 
-There is a huge difference between the students performance which have a standard meal and the ones which have a free/reduced meal. Probably the students who are getting a free/reducred meal are from a porer family which might have less time to spend with their kids or maybe the kids education is not the highest priority. As the family might have finicial issues it could be also possible that the students need to work in order to have enough money for the family. Therefore it might be that their study time is needed for working and this might lead to worse results.
+There is a huge difference between the students performance which have a standard meal and the ones which have a free/reduced meal. Probably the students who are getting a free/reduced meal are from a porerer family which might have less time to spend with their kids or maybe the kids education is not the highest priority. As the family might have financial issues it could be also possible that the students need to work in order to have enough money for the family. Therefore it might be possible that their study time is needed for working and this might lead to worse results.
 
 Lets have a look on the test preparation variable and sort the results descending.
 
@@ -651,7 +663,7 @@ df_explo %>%
 arrange(desc(med_score))
 ```
 
-Students who made a test preparation course have much better results than students who didnt. But the difference is much smaller than in the lunch variable.
+Students who made a test preparation course have much better results than students who didn't. But the difference is much smaller than in the lunch variable.
 
 ### Visualizations
 
@@ -1387,15 +1399,16 @@ xgb_res_2 <-
   )
 xgb_res_2 %>% collect_metrics(summarize = TRUE)
 ```
+
 The model performance improved by adapting the hyper parameters. The RMSE score could be reduced by 0.5. Now lets try it with the tune package.
 
 The hyperparameter tuning is based on the following documentations:
 
-- https://www.tidymodels.org/start/tuning/
+-   https://www.tidymodels.org/start/tuning/
 
-- https://www.tidymodels.org/learn/work/tune-svm/
+-   https://www.tidymodels.org/learn/work/tune-svm/
 
-- https://tune.tidymodels.org
+-   https://tune.tidymodels.org
 
 First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
 
@@ -1416,6 +1429,7 @@ have a look on the tune spec:
 ```{r xgboost_tune_spec}
 xgb_spec_3
 ```
+
 The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyperparameter.
 
 In the next steps several models are trained using resampled data. Afterwards it is checked which model performs best. For this a grid of values is created:
@@ -1473,10 +1487,10 @@ xgboost_best <- xgb_res_3 %>%
   select_best("rmse")
 xgboost_best
 ```
+
 The hyper parameter optimization with the tune package increased the RMSE a lot compared to the initial model. It has also increased to the manual selected hyper parameters.
 
 But it has to be said that I am skeptical regarding the selected best hyper parameters... Tree_depth of one and a min_n of two do not seem to be robust for new data...
-
 
 ### Linear regression
 
@@ -1520,11 +1534,10 @@ lim_res_2 <-
   )
 lim_res_2 %>% collect_metrics(summarize = TRUE)
 ```
+
 The model performance was not improved... Now lets try it with the tune package.
 
-
 First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
-
 
 ```{r spec_lin_reg_3}
 lin_spec_3 <- 
@@ -1540,6 +1553,7 @@ have a look on the tune spec:
 ```{r line_reg_tune_spec}
 lin_spec_3
 ```
+
 The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyper parameter.
 
 In the next steps several models are trained using resampeled data. Afterwards it is checked which model performs best. For this a grid of values is created:
@@ -1594,10 +1608,10 @@ lin_best <- lin_res_3 %>%
   select_best("rmse")
 lin_best
 ```
+
 The hyper parameter optimization with the tune package increased the RMSE only by a minimum compared to the initial model. For the linear regression almost no improvement was possible.
 
 The model performance is similar to the xgboost model which was tuned with the tune package.
-
 
 ### Single Layer Neural Network
 
@@ -1608,7 +1622,6 @@ For the Single Layer Neural Network the following hyperparameters shall be adapt
 -   Penalty: Amount of regularization - default 0.0
 
 -   epochs: Amount of epochs for training - default 100L
-
 
 Source: [Multilayer perceptron via nnet](https://parsnip.tidymodels.org/reference/details_mlp_nnet.html)
 
@@ -1647,11 +1660,10 @@ neural_res_2 <-
   )
 neural_res_2 %>% collect_metrics(summarize = TRUE)
 ```
+
 The model performance improved a bit the hyper parameters. The RMSE score could be reduced by 0.3. Now lets try it with the tune package.
 
-
 First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
-
 
 ```{r spec_neural_3}
 neural_spec_3 <- 
@@ -1668,10 +1680,10 @@ have a look on the tune spec:
 ```{r neural_tune_spec}
 neural_spec_3
 ```
+
 The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyper parameter.
 
 In the next steps several models are trained using resampelled data. Afterwards it is checked which model performs best. For this a grid of values is created:
-
 
 ```{r neural_grid}
 neural_grid <- grid_regular(
@@ -1724,15 +1736,16 @@ neural_best <- neural_res_3 %>%
   select_best("rmse")
 neural_best
 ```
+
 The hyper parameter optimization with the tune package increased the RMSE a lot compared to the initial model. It has also increased to the manual selected hyper parameters.
 
 The best models (based on lowest RMSE) are:
 
-1. RMSE: 12.10604 - Linear Regression
-2. RMSE: 12.10782 - XGBoost
-3. RMSE: 12.13196 - Neural Network
+1.  RMSE: 12.10604 - Linear Regression
+2.  RMSE: 12.10782 - XGBoost
+3.  RMSE: 12.13196 - Neural Network
 
-All models have very similar performance metrics and the differences are minor. But the RMSE score is still quite high. Probably the available (only categorical) variables are not that good for predicting the performance of the students in the exams. This was also seen in the previous chapters with the R squared score which was only slightly above 0.25. 
+All models have very similar performance metrics and the differences are minor. But the RMSE score is still quite high. Probably the available (only categorical) variables are not that good for predicting the performance of the students in the exams. This was also seen in the previous chapters with the R squared score which was only slightly above 0.25.
 
 In the next step the best model will be fitted a last time on the training data before the deployment phase can be started.
 
@@ -1740,7 +1753,7 @@ In the next step the best model will be fitted a last time on the training data 
 
 ## Validate model
 
-In this chapter the best model from the modeling will be fitted on all training data instead of only the splitted cross-validation data set. The final fitted model can be deployed and validated on the test data.
+In this chapter the best model from the modeling will be fitted on all training data instead of only the split cross-validation data set. The final fitted model can be deployed and validated on the test data.
 
 Add the model with the best results to the defined workflow:
 
@@ -1749,7 +1762,6 @@ workflow_best_model <-
   lin_workflow_3 %>%
   finalize_workflow(lin_best)
 ```
-
 
 ```{r model_last_fit}
 last_fit_model <- workflow_best_model %>% 
@@ -1762,8 +1774,6 @@ last_fit_model %>%
 ```
 
 The performance of the model on test data is worse than it was on the training data. The RMSE metric increased from 12.1 to 12.77.
-
-
 
 ## Deploy model
 
