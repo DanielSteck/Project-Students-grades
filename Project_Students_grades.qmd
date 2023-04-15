@@ -1357,13 +1357,102 @@ First of all the model will be specified:
 ```{r spec_xgboost_2}
 xgb_spec_2 <- 
   boost_tree(
-    trees = 20,
-    tree_depth = 3,
-    min_n = 5,
-    learn_rate = 0.1,
+    trees = 30,
+    tree_depth = 4,
+    min_n = 8,
+    learn_rate = 0.2,
     loss_reduction = 0.05) %>% 
   set_engine("xgboost") %>% 
   set_mode("regression") 
+```
+
+Afterwards the new model will be added to the workflow with the created recipe
+
+```{r workflow_xboost_2}
+
+xgb_workflow_2 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(xgb_spec_2)
+```
+
+```{r res_xgboost_2}
+set.seed(50)
+
+xgb_res_2 <-
+  xgb_workflow_2 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+xgb_res_2 %>% collect_metrics(summarize = TRUE)
+```
+The model performance improved by adapting the hyper parameters. The RMSE score could be reduced by 0.5. Now lets try it with the tune package.
+
+The hyperparameter tuning is based on the following documentations:
+
+- https://www.tidymodels.org/start/tuning/
+
+- https://www.tidymodels.org/learn/work/tune-svm/
+
+- https://tune.tidymodels.org
+
+First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
+
+```{r spec_xgboost_3}
+xgb_spec_3 <- 
+  boost_tree(
+    trees = tune(),
+    tree_depth = tune(),
+    min_n = tune(),
+    learn_rate = tune(),
+    loss_reduction = tune()) %>% 
+  set_engine("xgboost") %>% 
+  set_mode("regression") 
+```
+
+have a look on the tune spec:
+
+```{r xgboost_tune_spec}
+xgb_spec_3
+```
+The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyperparameter.
+
+In the next steps several models are trained using resampled data. Afterwards it is checked which model performs best. For this a grid of values is created:
+
+```{r xgboost_grid}
+xgboost_grid <- grid_regular(
+  trees(),
+  min_n(),
+  tree_depth(),
+  learn_rate(),
+  loss_reduction(),
+  levels = 3
+)
+xgboost_grid
+```
+
+
+
+
+```{r workflow_xboost_3}
+
+xgb_workflow_3 <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(xgb_spec_3)
+```
+
+```{r res_xgboost_3}
+set.seed(50)
+
+xgb_res_3 <-
+  xgb_workflow_3 %>%
+  fit_resamples(
+    resamples = cv_folds,
+                control = control_resamples(save_pred = TRUE)
+  )
+xgb_res_3 %>% collect_metrics(summarize = TRUE)
 ```
 
 ### Linear regression
