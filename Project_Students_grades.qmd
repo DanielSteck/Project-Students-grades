@@ -945,17 +945,17 @@ These outliers make it hard for the later model to predict the result correctly.
 
 ## Feature engineering
 
-All topics which were learned/discovered within the earlier steps shall be used now for the data preprocessing and feature engineering. This will be made with data pipelines. Those are generated with the tidymodels package *recipes* and *workflows*. The feature selection part wont be included here, as the features are selected within the modeling part.
+All topics which were learned/discovered within the earlier steps shall be used now for the data preprocessing and feature engineering. This will be made with data pipelines. Those are generated with the tidymodels package *recipes* and *workflows*. The feature selection part wont be included here, as the features are selected within the modeling part. So the recipe will include all available features for a base model. In the model chapter the Feature Selection will be made with the available packages and tools in R.
 
 ### Feature transformation
 
-Target of feature transformations - for this project and maybe new data in the future is to get red id:
+Target of feature transformations - for this project and maybe new data in the future is to get red of:
 
 -   missing values
 -   outliers
--   one hot encoding of categorical variables
+-   categorical variables --\> one hot encoding
 
-Other datasets would need further steps which do not apply in this project due to the data structure. Those other steps would be:
+Other datasets would need further steps which do not apply in this project due to the data structure. Those other steps could be:
 
 -   get data on the same scale
 
@@ -1026,7 +1026,7 @@ glimpse(prepped_data)
 
 The recipe was successful! The character columns were successfully changed to dummy variables, so that the models can work with them. Moreover three observations were removed as they were identified as outliers.
 
-Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data.
+Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data. The amount of breaks is the value which was learned in the Data Visualization chapter.
 
 ```{r validation_set}
 set.seed(12)
@@ -1292,11 +1292,11 @@ plot(importance)
 
 It can be seen that the other exam scores are having the biggest influence on the average score - which totally makes sense as these variables are the basis for this variable. This is exactly why they need to be removed from the modelling, even though they have a huge feature importance.
 
-Beside these variables the most important features are the `lunch` `test_preparation`variables. Also an important features seems to be the `ethnic_group` but only for one level (Group E). The other levels have only a very small influence on the result. Also the `gender` variable seems to be a bit important. The lowest feature importance is brought in by the `parent_education` as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.
+Beside these variables the most important features are the `lunch` and `test_preparation`variables. Also an important features seems to be the `ethnic_group` but only for one level (Group E). The other levels have only a very small influence on the result. Also the `gender` variable seems to be a bit important. The lowest feature importance is brought in by the `parent_education` as most of the levels have only a very small Importance. This result is matching the learning from the data visualization. In that chapter it was learned the most of the other levels have only a small impact on the average exam score.
 
 **Forward Selection**
 
-Lets make a simple model in which a Forward selection if performed. The result of this shall determine the variables which are used in all models.
+Lets make a simple model in which a Forward selection if performed. The result of this shall determine the variables which shall be used in all models.
 
 ```{r forward_selection}
 # Set seed for reproducibility
@@ -1424,7 +1424,7 @@ xgb_spec_3 <-
   set_mode("regression") 
 ```
 
-have a look on the tune spec:
+Have a look on the tune spec:
 
 ```{r xgboost_tune_spec}
 xgb_spec_3
@@ -1433,8 +1433,6 @@ xgb_spec_3
 The `tune()` is like a placeholder. After the tuning process single numeric values are selected for each of the hyperparameter.
 
 In the next steps several models are trained using resampled data. Afterwards it is checked which model performs best. For this a grid of values is created:
-
-Note: Due to to many different model variations, I have decided to reduce the grid to a maximum of three hyper parameters. Instead of additional hyper parameters, it makes more sense to test more levels in between.
 
 ```{r xgboost_grid}
 xgboost_grid <- grid_regular(
@@ -1445,6 +1443,8 @@ xgboost_grid <- grid_regular(
 )
 xgboost_grid
 ```
+
+In total 125 different models with different hyperparameters were specified.
 
 Everything is ready to tune. `tune_grid` can be used to fit models for all different hyperparameters.
 
@@ -1548,7 +1548,7 @@ lin_spec_3 <-
   set_mode("regression") 
 ```
 
-have a look on the tune spec:
+Have a look on the tune spec:
 
 ```{r line_reg_tune_spec}
 lin_spec_3
@@ -1566,6 +1566,8 @@ lin_grid <- grid_regular(
 )
 lin_grid
 ```
+
+In total 25 different models with different hyperparameters were specified.
 
 Everything is ready to tune. `tune_grid` can be used to fit models for all different hyperparameters.
 
@@ -1675,7 +1677,7 @@ neural_spec_3 <-
   set_mode("regression") 
 ```
 
-have a look on the tune spec:
+Have a look on the tune spec:
 
 ```{r neural_tune_spec}
 neural_spec_3
@@ -1694,6 +1696,8 @@ neural_grid <- grid_regular(
 )
 neural_grid
 ```
+
+In total 125 different models with different hyperparameters were specified.
 
 Everything is ready to tune. `tune_grid` can be used to fit models for all different hyperparameters.
 
@@ -1773,7 +1777,7 @@ last_fit_model %>%
     collect_metrics()
 ```
 
-The performance of the model on test data is worse than it was on the training data. The RMSE metric increased from 12.1 to 12.77.
+The performance of the model on test data is worse than it was on the training data. The RMSE metric increased from 12.1 to 12.77. Probably the model was overfitted a bit on the training data. But the RMSE score is still better than for certain created models in the Modelling phase (on training data).
 
 ## Deploy model
 
