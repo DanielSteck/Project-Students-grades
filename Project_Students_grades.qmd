@@ -1781,6 +1781,18 @@ The performance of the model on test data is worse than it was on the training d
 
 ## Deploy model
 
+Sources for Model deployment:
+
+-   [Youtube Posit: MLOps with vetiver in Python and R](https://www.youtube.com/watch?v=oFQANK13-k4)
+
+-   [Posit Solutions: MLOps with vetiver and Posit](https://solutions.posit.co/gallery/model-management/vetiver/)
+
+-   [Github: End-to-End machine Learning Pipeline](https://github.com/sol-eng/bike_predict)
+
+-   [Posit: End-to_end Data Science with RStudio Connect](https://colorado.posit.co/rsc/bike-predict-r-dashboard/document.html)
+
+-   [Plumber Documentation](https://www.rplumber.io/articles/introduction.html)
+
 ## Serve model
 
 ## Monitor model
