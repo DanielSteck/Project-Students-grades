@@ -690,14 +690,14 @@ ggplot(data = df_explo, mapping = aes(x = avg_score)) +
 
 The results are quite similar compared to what was learned in the R queries. Highest density of the average_score is at the median score. There are only a small amount of scores which are below 40.
 
-Now lets have a look on our features. For this use case we only got categorical features in our data set. Therefore lets have a look on their levels und the uniqueness.
+Now lets have a look on our features. For this use case we only got categorical features in our data set. Therefore lets have a look on their levels and the uniqueness.
 
 ```{r cat_features_bar_plot}
 for (i in features){
   
   p <- ggplot(df_explo, aes_string(x=i)) +
   geom_bar(fill="lightblue")+
-    labs(title = "Students average performance in exams", 
+    labs(title = "Distibution of levels in the varaibles", 
        y= "count") +
   theme_minimal()+
   theme (text = element_text(size=8),
@@ -715,7 +715,7 @@ Regarding the **parents education**- this feature has six levels which are not e
 
 The **lunch** type has two levels which are not equally distributed, about 66% occurrences are the standard lunch types, while 33% are the free/reduced type of lunch. This is actually quite a high number of reduced/free lunch meals.
 
-The amount of students who performaed a **test preparation** course is about 35% while 65% of students did not make any test prepration.
+The amount of students who performed a **test preparation** course is about 35% while 65% of students did not make any test preparation.
 
 Lets have a look on the impact of these features and their levels on the target variable **average score**
 
@@ -772,7 +772,7 @@ ggplot(df_explo, aes(x = fct_reorder(
          legend.key.size = unit(5, "mm"))
 ```
 
-Actually the results from the r queries can be confirmed. Best results are in `group E` and the groups `A`, `B` and `C` have almost the same values. Even though there are some outliers in `group C`. The mean for these three groups is almost the same, but it can be seen that `group B` has different whiskers, here the IQR range is spreaded the most.
+Actually the results from the R queries can be confirmed. Best results are in `group E` and the groups `A`, `B` and `C` have almost the same values. Even though there are some outliers in `group C`. The mean for these three groups is almost the same, but it can be seen that `group B` has different whiskers, here the IQR range is spread the most.
 
 **Impact parent_education on Avg_score**
 
@@ -969,7 +969,7 @@ Other datasets would need further steps which do not apply in this project due t
 
 **Outliers:** Some outliers are included in the data set. For handling those the target is to test the experimental 3-rd party package from [*tidy_outlier*](https://github.com/brunocarlin/tidy.outliers)
 
-**One-Hot_encoding:** Our available categorical data needs to be converted to numbers as alorithms prefer to work with numbers. For this the tidy models [step_dummy](https://recipes.tidymodels.org/articles/Dummies.html) function will be used.
+**One-Hot_encoding:** Our available categorical data needs to be converted to numbers as algorithms prefer to work with numbers. For this the tidy models [step_dummy](https://recipes.tidymodels.org/articles/Dummies.html) function will be used.
 
 ### Feature extraction
 
@@ -1247,7 +1247,7 @@ neural_res_1 %>% collect_metrics(summarize = FALSE)
 
 There are some smaller differences between these folds, but overall those differences are not to big.
 
-This model has the highest RSME score. The RSQ score is simiar to the result of the XGBoost.
+This model has the highest RSME score. The RSQ score is similar to the result of the XGBoost.
 
 Lets visualize these metrics into a plot. For this the predictions are plotted on the y-axis and the actual values on the x-axis. If a perfect model would have been created, all points would be on the diagonal line
 
@@ -1266,7 +1266,7 @@ assess_xgb_res_1 %>%
 
 ## Feature Selection
 
-After the inital models were created and their results were visualized, lets have a look on the feature importances. Currently all available features were used for the model creation. Therefore lets analyze the Feature Importance and therefore it might be better to remove some features.
+After the initial models were created and their results were visualized, lets have a look on the feature importance's. Currently all available features were used for the model creation. Therefore lets analyze the Feature Importance and therefore it might be better to remove some features.
 
 ```{r feature_importance_caret}
 
