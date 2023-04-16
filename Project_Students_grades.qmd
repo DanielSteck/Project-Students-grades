@@ -57,7 +57,7 @@ Before the steps of the data science lifecycle are made, some SQL queries will b
 First the DBI library is loaded and afterwards the data is added into the database.
 
 ```{r import_SQL_librarys}
-
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, collapse = TRUE) 
 library (DBI)
 library(tidyverse)
 
