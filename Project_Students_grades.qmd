@@ -1831,8 +1831,43 @@ model_board %>% pin_versions(model_name)
 library(plumber)
 pr() %>%
   vetiver_api(v) %>%
-  pr_run(port = 8088)
+  pr_run(port = 8000)
 ```
+
+It is also possible to deploy the vetiver API to other infrastructures than Posit Connect (e.g. AWS or Azure). For this a Docker container helps a lot. This docker container will be created in the next code block.
+
+```{r prepare_dockerfile}
+#vetiver_prepare_docker(model_board, model_name)
+```
+
+Three files have been created:
+
+-   Dockerfile
+
+-   Plumber file serving the REST API
+
+-   venticer_renv_lock file to capture the model dependencies.
+
+**Predict from the model endpoint:**
+
+In case that the model is running in another process (e.g. remotely) it would be also possible to get predictions from this model in R. Below the endpoint definition is made as well as the request for a new student exam performance.
+
+```{r define_endpoint}
+endpoint <- vetiver_endpoint("http://127.0.0.1:8000/predict")
+```
+
+```{r predict_from_endpoint}
+random_student <- tibble (
+  gender = "female",
+  ethnic_group = "group E",
+  parent_education ="some college", 
+  lunch = "standard",
+  test_preparation = "completed"
+)
+#predict(endpoint, random_student)
+```
+
+Sadly this prediction is not working as I allays get the error message, that the connection is refused...
 
 ## Serve model
 
