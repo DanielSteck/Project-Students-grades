@@ -1800,9 +1800,11 @@ last_fit_model_depl <- fit(workflow_best_model, data=train_data)
 
 ```
 
-```{r}
+```{r vetiver_model}
 library(vetiver)
 library(glue)
+library(rsconnect)
+library(pins)
 model_name <- "Prediction_of_exam_score_model_r"
 pin_name <- glue("daniel.steck/{model_name}")
 
@@ -1814,8 +1816,11 @@ v <- vetiver_model( #create vetiver model
 v
 ```
 
-```{r}
-
+```{r pin_model}
+model_board <- board_temp(versioned = TRUE)
+# Write the model to the board.
+model_board %>%
+ vetiver_pin_write(v)
 ```
 
 ## Serve model
