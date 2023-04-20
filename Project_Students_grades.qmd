@@ -1830,7 +1830,8 @@ model_board %>% pin_versions(model_name)
 ```{r}
 library(plumber)
 pr() %>%
-  vetiver_api(v)
+  vetiver_api(v) %>%
+  pr_run(port = 8088)
 ```
 
 ## Serve model
