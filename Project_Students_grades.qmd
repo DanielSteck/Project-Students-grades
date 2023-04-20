@@ -1791,7 +1791,32 @@ Sources for Model deployment:
 
 -   [Posit: End-to_end Data Science with RStudio Connect](https://colorado.posit.co/rsc/bike-predict-r-dashboard/document.html)
 
+-   https://cran.r-project.org/web/packages/vetiver/vetiver.pdf
+
 -   [Plumber Documentation](https://www.rplumber.io/articles/introduction.html)
+
+```{r last_fit_for_deployment}
+last_fit_model_depl <- fit(workflow_best_model, data=train_data)
+
+```
+
+```{r}
+library(vetiver)
+library(glue)
+model_name <- "Prediction_of_exam_score_model_r"
+pin_name <- glue("daniel.steck/{model_name}")
+
+v <- vetiver_model( #create vetiver model
+  last_fit_model_depl,
+  model_name,
+  versioned = TRUE
+)
+v
+```
+
+```{r}
+
+```
 
 ## Serve model
 
