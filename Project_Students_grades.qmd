@@ -1817,10 +1817,20 @@ v
 ```
 
 ```{r pin_model}
-model_board <- board_temp(versioned = TRUE)
+model_board <- board_temp(versioned = TRUE) #authentifact information for rsconnect board not found, therefore no deployment on rsconnect
 # Write the model to the board.
 model_board %>%
  vetiver_pin_write(v)
+```
+
+```{r}
+model_board %>% pin_versions(model_name)
+```
+
+```{r}
+library(plumber)
+pr() %>%
+  vetiver_api(v)
 ```
 
 ## Serve model
