@@ -1839,7 +1839,9 @@ Check all versions on the board:
 model_board %>% pin_versions(model_name)
 ```
 
-Using of plumber in order to deploy the model with vetiver.
+## Serve model
+
+Usage of plumber in order to deploy the model with vetiver.
 
 If this code chunk is running it is possible to make predictions with the model in a separate window.
 
@@ -1862,7 +1864,7 @@ Three files have been created:
 
 -   Plumber file serving the REST API
 
--   venticer_renv_lock file to capture the model dependencies.
+-   ventiver_renv_lock file to capture the model dependencies.
 
 **Predict from the model endpoint:**
 
@@ -1883,8 +1885,6 @@ random_student <- tibble (
 #predict(endpoint, random_student)
 ```
 
-Sadly this prediction is not working as I allways get the error message, that the connection is refused...
-
-## Serve model
+Sadly this prediction is not working as I always get the error message, that the connection is refused...
 
 ## Monitor model

@@ -56,13 +56,13 @@ A [model card](https://doi.org/10.1145/3287560.3287596) provides brief, transpar
 
 ## Metrics
 
--   The metrics used to evaluate this model are: - Root Mean Squared Error (RMSE),
+-   The metrics used to evaluate this model are:
 
-    ```         
+    -   Root Mean Squared Error (RMSE),
+
     -   R Squared (RSQ), and
 
     -   Mean Absolute Error (MAE).
-    ```
 
 -   These metrics are chosen because they are the most common metrics for assessing the performance of regression models, and that they are well understood by the data science community.
 
