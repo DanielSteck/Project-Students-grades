@@ -1795,10 +1795,16 @@ Sources for Model deployment:
 
 -   [Plumber Documentation](https://www.rplumber.io/articles/introduction.html)
 
+First of all a last fit of the created final model will be made. This is done as with the previous last fit the model is not compatible for deploying with vetiver. With this last fit on the training data the model fits to the requirements from vetiver
+
 ```{r last_fit_for_deployment}
 last_fit_model_depl <- fit(workflow_best_model, data=train_data)
 
 ```
+
+In the next step the model name and pin name gets specified.
+
+Moreover the model is defined. For this the vetiver package is used.
 
 ```{r vetiver_model}
 library(vetiver)
@@ -1816,6 +1822,10 @@ v <- vetiver_model( #create vetiver model
 v
 ```
 
+After the model was defined the model is written to the pin in order to deploy it.
+
+Sadly I could not find the information for Rsconnect in order to deploy it via an API in Rsconnect. Therefore the model will be written to a local and temporary board.
+
 ```{r pin_model}
 model_board <- board_temp(versioned = TRUE) #authentifact information for rsconnect board not found, therefore no deployment on rsconnect
 # Write the model to the board.
@@ -1823,9 +1833,15 @@ model_board %>%
  vetiver_pin_write(v)
 ```
 
+Check all versions on the board:
+
 ```{r}
 model_board %>% pin_versions(model_name)
 ```
+
+Using of plumber in order to deploy the model with vetiver.
+
+If this code chunk is running it is possible to make predictions with the model in a separate window.
 
 ```{r}
 library(plumber)
@@ -1867,7 +1883,7 @@ random_student <- tibble (
 #predict(endpoint, random_student)
 ```
 
-Sadly this prediction is not working as I allays get the error message, that the connection is refused...
+Sadly this prediction is not working as I allways get the error message, that the connection is refused...
 
 ## Serve model
 
