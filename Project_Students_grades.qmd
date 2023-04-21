@@ -1888,3 +1888,20 @@ random_student <- tibble (
 Sadly this prediction is not working as I always get the error message, that the connection is refused...
 
 ## Monitor model
+
+After the model was successfully deployed it is very important to monitor its statistical performance. The issue is that the decrease of model performance is not noticed as the model can continue returning predictions without errors. These quiet performance problems might occur when the statistical distribution of an input feature changes or when there is change in the relationship between input features and the outcome.
+
+The silent failure can happen unnoticed if there is no monitoring for degradation.
+
+```{r metrics_over_time}
+preds <- augment(v, test_data)
+
+latest_metrics <- preds %>%
+  arrange(date) %>%
+  vetiver_compute_metrics(
+    date_var = date,
+    period = "day",
+    truth = avg_score,
+    estimate = .pred
+  )
+```
