@@ -29,8 +29,25 @@ ui <- dashboardPage(
           titlePanel(h1("Data Visualization")),
             fluidRow(
               # define headers, in a separate fluid row in order to have input slider and plot on the same height
+              h2("Introduction"),
+              "Welcome to my first deployed application in shiny.",
+              br(),
+              "This small Dashboard was created within the lecture Programming Languages for Data Science.",
+              br(),
+              "Several visualizations are on this page. The visualized dataset contains 1000 observations of students, their attributes and their performance in their exams.",
+              br(),
+              "Below some plots are showing the imapct of the variables on the target variable. The target varibale is the average score in the exams. As the original dataframe contained three different exams, the mean was taken from them and a new variable was added which contains the average score in all three exams.",
+              br(),
+              "In a R project a linear regression was performed in which the average exam score was predicted. Thats why this variable is called target variable. Scope of this Dashboard is to make an EDA so that it is possible to see the distribution of the target variable as well as the impact of the other variables in the average exam score.",
               h2("Plots from exam dataset"),
-              h3("Distribution of target variable")
+              h3("Distribution of target variable"),
+              "First of all the distribution of the target variable shall be displayed within a histogram.",
+              br(),
+              "The x-axis shows the average exam score and the y-axis shows the frequency of students who are within that bin.",
+              br(),
+              "On the right of the histogram is a slider implemented. This slider determines the amount of students who shall be displayed in the histogram and the boxplot below.",
+              br()
+              
             ),
           # define ui for histogram and input slider
             fluidRow(
@@ -39,7 +56,7 @@ ui <- dashboardPage(
                 sidebarPanel( # input slider is defined here
                   #box(
                     title = "Input Histogram", status="warning", solidHeader = TRUE, "Amount of students can be specified here",
-                    sliderInput("slider", "Amount of students:", 1, 1000, 100)
+                    sliderInput("slider", "Amount of students:", 1, 1000, 600)
                   #)
                 ),
                 # define the main panel, in this panel the histogram shall be plotted
@@ -56,6 +73,14 @@ ui <- dashboardPage(
             fluidRow(
               h3("Categorical Plots"),
               h4("Boxplots"),
+              "Scope of the boxplots is to display the influence of the different variables on the average exam score.",
+              br(),
+              "On the right you can chose the variable you want to display in the boxplot below.",
+              br(),
+              "The x-axis shows all levels within the categorical variable and the y-axis shows the distribution within that level.",
+              br(),
+              "Boxplots help for a quick understanding of the available data, as the median, the first quantil and the third quantil are beeing displayed. Moreover outliers can be detected.",
+              br()
             ),
           # define ui for boxplot and input selection for boxplot
             fluidRow(
@@ -87,6 +112,13 @@ ui <- dashboardPage(
           # define headers, in a separate fluid row in order to have input slider and plot on the same height
           fluidRow(
             h4("Density Plots"),
+            "Additionally to the boxplots you can play around with the density plot and specify the variables you want to get plotted.",
+            br(),
+            "On the right you can specify which variable shall be filled as color and which one shall be used for a facet_wrap. Sadly the facet_wrap is not working with the drop down selection, therefore allways the gender variable is used for the facet_wrap.",
+            br(),
+            " The x-axis shows the average score in the exams while the y-axis shows the density within the selected variable.",
+            br(),
+            "for testing purposes the last plot was created with ggplot instead of the shiny visualizations."
           ),
           #define ui for density plot and input selection for density plot (color and facet wrap)
           fluidRow(
@@ -144,7 +176,7 @@ server <- function(input, output) {
     bins <- 10 
     
     hist(x, breaks = bins, col = "#007bc2", border = "white",
-         xlab = "Average performance in exam",
+         xlab = "Average score in exam",
          main = "Histogram of average score in exam")
     
   })
@@ -160,8 +192,8 @@ server <- function(input, output) {
      # add boxplot. Also with the input from the amount of students slider
      boxplot(dataset$avg_score[seq_len(input$slider)] ~ data[seq_len(input$slider)], col = "#007bc2", 
             xlab = input$var,
-            main = "Students performance in exams",
-            ylab = "Average performance in exam")
+            main = "Students average score in exams",
+            ylab = "Average score in exam")
    })
    # print which variable was selected
    output$selected_var <- renderText({ 
@@ -188,7 +220,7 @@ server <- function(input, output) {
        geom_density(alpha=0.7) + 
        scale_fill_manual(input$var2, values = c("#339999", "#FFFF66", "blue", "green", "orange", "red"))+
        facet_wrap(~dataset$gender, ncol=1)+ #facet_wrap(~data3) is not working therefore as a temporary solution I will use gender always as facet_wrap
-       labs(title = "Students average performance in exams", 
+       labs(title = "Students average score in exams", 
             x = "Average score in exams",
             y = "density") +
        theme_minimal()+
