@@ -1897,16 +1897,33 @@ The model monitoring did not work as I planned. I tried to solve it with the pos
 
 Sources for the attempt of model monitoring:
 
--   https://colorado.posit.co/rsc/bike-predict-r-model-metrics/document.html
+-   [Posit Model metrics](https://colorado.posit.co/rsc/bike-predict-r-model-metrics/document.html)
 
--   https://rstudio.github.io/vetiver-r/reference/vetiver_compute_metrics.html
+-   [Vetiver compute metrics](https://rstudio.github.io/vetiver-r/reference/vetiver_compute_metrics.html)
 
--   https://vetiver.rstudio.com/get-started/monitor.html
+-   [Vetiver Model monitoring](https://vetiver.rstudio.com/get-started/monitor.html)
 
 ## Shiny
 
 Within this chapter the model and corresponding visualization shall be deployed with shiny and the target is to visualize everything in a dashboard.
 
+First of all the connection has to be established. For this the data provided within the shiny account is used based on this documentation: [Getting started with shiny](https://shiny.rstudio.com/articles/shinyapps.html?_ga=2.28034556.1347876817.1682150371-373314606.1682150371)
+
 ```{r connection_rsconnect}
 rsconnect::setAccountInfo(name='danielsteck', token='27FA72E141C5D1C0E638BBD54BB2421B', secret='kxHXXMfIFDDJDac/jIvWP7OOffeX8+eWZdDKl/Hu')
+```
+
+```{r load_shiny}
+library(shiny)
+```
+
+Shiny demo application:
+
+For creating shiny app it is required to build an seperate server.R file as well as a ui.R file in which the data for the app are stroed so that the app can be run. These files were created and are stored within this working directory.
+
+**Test application**
+
+```{r}
+library(shiny)
+runApp()
 ```
