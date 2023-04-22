@@ -1,5 +1,9 @@
 library(shiny)
 library(shinydashboard)
+library(tidyverse)
+library(janitor)
+
+
 
 ui <- dashboardPage(
   
@@ -9,8 +13,8 @@ ui <- dashboardPage(
 # Content in sidebar  
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashbaord")),
-      menuItem("widgets", tabName = "widgets", icon = icon("th"))
+      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+      menuItem("Widgets", tabName = "widgets", icon = icon("th"))
     )
   ),
   
@@ -20,11 +24,12 @@ ui <- dashboardPage(
       # Content in first tab
       tabItem(tabName = "dashboard",
         fluidRow(
-          box(plotOutput("plot1", height = 250)),
+          box(title = "Histogram of average exam score", status = "primary", solidHeader = TRUE, collapsible =TRUE,
+            plotOutput("hist_plot_score", height = 250)),
           
           box(
-            title = "Controls",
-            sliderInput("slider", "Number of observations:", 1, 1000, 100)
+            title = "Input", status="warning", solidHeader = TRUE, "Amount of students can be specified here",
+            sliderInput("slider", "Amount of students:", 1, 1000, 100)
           )
         )
       ),
@@ -38,13 +43,31 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
-  set.seed(122)
-  histdata <- rnorm(500)
-  
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
+# read in the data and make preprocessing  
+  path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
+  dataset <- read_csv(path, show_col_types = FALSE)
+  dataset <- dataset %>% clean_names
+  dataset <- dataset %>% mutate (avg_score = (math_score + reading_score + writing_score)/3)
+ 
+# Histogram of average exam scores  
+   output$hist_plot_score <- renderPlot({
+    
+    x    <- dataset$avg_score[seq_len(input$slider)]
+    bins <- 10 #seq(min(x), max(x), length.out = input$bins + 1)
+    
+    hist(x, breaks = bins, col = "#007bc2", border = "white",
+         xlab = "Average performance in exam",
+         main = "Histogram of average score in exam")
+    
   })
+  
+  
+  #histdata <- rnorm(500)
+  #set.seed(122)
+  #output$plot1 <- renderPlot({
+   # data <- dataset[seq_len(input$slider)]
+    #hist(data)
+  #})
 }
 
 shinyApp(ui, server)
