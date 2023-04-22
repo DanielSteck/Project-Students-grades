@@ -25,7 +25,10 @@ ui <- dashboardPage(
       tabItem(tabName = "dashboard",
         fluidPage( #fluid page make the correct visualization based on users display
           titlePanel(h1("Data Visualization")),
-          
+            fluidRow(
+              h2("Plots from exam dataset"),
+              h3("Distribution of target variable")
+            ),
             fluidRow(
               column(9,
                 sidebarLayout(position ="right",
@@ -36,8 +39,6 @@ ui <- dashboardPage(
                   #)
                 ),
                 mainPanel(
-                  h2("Plots from exam dataset"),
-                  h3("Distribution of target variable"),
                   #box(
                     title = "Histogram of average exam score", status = "primary", solidHeader = TRUE, collapsible =TRUE,
                     plotOutput("hist_plot_score", height = 250)),
@@ -46,22 +47,28 @@ ui <- dashboardPage(
                 )
               ),
             ),
-          
+            fluidRow(
+              h3("Categorical Plots"),
+              h4("Boxplots"),
+            ),
             fluidRow(
               column(9,
                 sidebarLayout(position="right",
                 sidebarPanel(
                     title = "Input Histogram", status="warning", solidHeader = TRUE, "Variable for Boxplot can be specidied here",
-                    selectInput("select", h3("Select variable for Boxplot"), 
-                                choices = list("Gender" = 1, "Ethnic group" = 2,
-                                               "Parent education" = 3, "Type of lunch" = 4, "Test preparation course" =5), selected = 1)
+                    selectInput("var", h3("Select variable for Boxplot"), 
+                                choices = list("Gender",
+                                               "Ethnic group" ,
+                                               "Parent education" ,
+                                               "Type of lunch" ,
+                                               "Test preparation course" ), selected ="gender")
                 ),
                 mainPanel(
-                  h3("Categorical Plots"),
-                  h4("Boxplots"),
                   #box(
                     title = "Histogram of average exam score", status = "primary", solidHeader = TRUE, collapsible =TRUE,
                     plotOutput("box_plot", height = 250),
+                    
+                    textOutput("selected_var"),
                 
                   #)
                   
@@ -99,17 +106,25 @@ server <- function(input, output) {
     
   })
    
-# Boxplot for target variable and filtered variable  
-   #output$box_plot <- renderPlot({
-    
-    #x    <- dataset$avg_score[seq_len(input$slider)]
-    #bins <- 10 #seq(min(x), max(x), length.out = input$bins + 1)
-    
-    #hist(x, breaks = bins, col = "#007bc2", border = "white",
-         #xlab = "Average performance in exam",
-         #main = "Histogram of average score in exam")
-    
-  #})
+
+ 
+   output$box_plot <- renderPlot({
+     data <- switch(input$var,
+                    "Gender"=dataset$gender,
+                    "Ethnic group" = dataset$race_ethnicity,
+                    "Parent education" = dataset$parental_level_of_education,
+                    "Type of lunch" = dataset$lunch,
+                    "Test preparation course" = dataset$test_preparation_course)
+     boxplot(dataset$avg_score[seq_len(input$slider)] ~ data[seq_len(input$slider)], col = "#007bc2", 
+            xlab = input$var,
+            main = "Students performance in exams",
+            ylab = "Average performance in exam")
+   })
+   
+   output$selected_var <- renderText({ 
+     paste("You have selected", input$var)
+   })
+   
    
 }
 
