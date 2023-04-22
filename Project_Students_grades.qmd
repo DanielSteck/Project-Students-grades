@@ -1919,7 +1919,7 @@ library(shiny)
 
 Shiny demo application:
 
-For creating shiny app it is required to build an seperate server.R file as well as a ui.R file in which the data for the app are stroed so that the app can be run. These files were created and are stored within this working directory.
+For creating shiny app it is required to build an separate server.R file as well as a ui.R file in which the data for the app are stored so that the app can be run. These files were created and are stored within this working directory.
 
 **Test application**
 
