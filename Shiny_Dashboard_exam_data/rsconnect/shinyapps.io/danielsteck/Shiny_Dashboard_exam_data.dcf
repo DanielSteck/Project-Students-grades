@@ -1,0 +1,13 @@
+name: Shiny_Dashboard_exam_data
+title: Shiny_Dashboard_exam_data
+username:
+account: danielsteck
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8923229
+bundleId: 7121929
+url: https://danielsteck.shinyapps.io/Shiny_Dashboard_exam_data/
+when: 1682180455.65622
+lastSyncTime: 1682180455.65623
+asMultiple: FALSE
+asStatic: FALSE
