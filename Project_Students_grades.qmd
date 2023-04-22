@@ -1908,7 +1908,5 @@ Sources for the attempt of model monitoring:
 Within this chapter the model and corresponding visualization shall be deployed with shiny and the target is to visualize everything in a dashboard.
 
 ```{r connection_rsconnect}
-rsconnect::setAccountInfo(name='danielsteck',
-			  token='27FA72E141C5D1C0E638BBD54BB2421B',
-			  secret='<SECRET>')
+rsconnect::setAccountInfo(name='danielsteck', token='27FA72E141C5D1C0E638BBD54BB2421B', secret='kxHXXMfIFDDJDac/jIvWP7OOffeX8+eWZdDKl/Hu')
 ```
