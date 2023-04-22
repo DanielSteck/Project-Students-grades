@@ -23,7 +23,20 @@ ui <- dashboardPage(
     tabItems(
       # Content in first tab
       tabItem(tabName = "dashboard",
-        fluidRow(
+        fluidPage( #fluid page make the correct visualization based on users display
+          titlePanel("Data Visualization"),
+          
+          sidebarLayout(position ="right",
+            sidebarPanel("Input for data visualization"),
+            mainPanel(
+              h1("Plots from exam dataset"),
+              h2("Distribution of target variable"),
+              h2("Categorical Plots"),
+              h3("Boxplots"),
+              h4("Boxplot Gender ~ avg_score")
+            )
+          ),
+          
           box(title = "Histogram of average exam score", status = "primary", solidHeader = TRUE, collapsible =TRUE,
             plotOutput("hist_plot_score", height = 250)),
           
@@ -60,14 +73,7 @@ server <- function(input, output) {
          main = "Histogram of average score in exam")
     
   })
-  
-  
-  #histdata <- rnorm(500)
-  #set.seed(122)
-  #output$plot1 <- renderPlot({
-   # data <- dataset[seq_len(input$slider)]
-    #hist(data)
-  #})
+   
 }
 
 shinyApp(ui, server)
