@@ -38,7 +38,7 @@ The whole documentation of this project can be also found on Github: [Github Rep
 
 # Plan
 
-Defore a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
+Before a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
 
 To sum is up this chapter is basis for the project and defines the usecase, the problem which shall be solved in this project and the targets which shall be achieved in order to determine at the end if the project was successful or not.
 
@@ -88,31 +88,31 @@ Variables in the dataset:
 
 -   **Parental level of education:** What is the highest level of education attained from the students parents.There is no differentiation between the parents and only the highest level of education is listed here. The level of education from the other parent is ignored.
 
-- **Lunch:** What type of lunch do the students receive: Either the standard type of lunch or a free/reduced option. The free/reduced option is probably only available for students who have a family which is kind of poor.
+-   **Lunch:** What type of lunch do the students receive: Either the standard type of lunch or a free/reduced option. The free/reduced option is probably only available for students who have a family which is kind of poor.
 
-- **Test preparation course:** Did the students complete a test preparation course or not?
+-   **Test preparation course:** Did the students complete a test preparation course or not?
 
-- **Math score:** Score which was achieved by the student in a standardized mathematics test.
+-   **Math score:** Score which was achieved by the student in a standardized mathematics test.
 
-- **Reading score:** Score which was achieved by the student in a standardized reading test.
+-   **Reading score:** Score which was achieved by the student in a standardized reading test.
 
-- **Writing score:** Score which was achieved by the student in a standardized writing test.
+-   **Writing score:** Score which was achieved by the student in a standardized writing test.
 
 Target of this project is to get a general overview of the students performance. It is not needed to know in which course they are performing good or bad. This is important for the later steps to work with the data. A more generic variable shall be created which combines the total performance of the students instead of the detailed overview for math, reading and writing.
 
 ## Define metrics
 
-This project has several aspects which determine that is was successful. Note all aspects need to be fulfilled, but there are some targets which should be fulfilled.
-One of this aspects is that new insights are made based on the available data set and our costumer can use this information as a basis for their decisions. It would be great if these results could be visualized in an interactive dashboard to work with the data.
+This project has several aspects which determine that is was successful. Note all aspects need to be fulfilled, but there are some targets which should be fulfilled. One of this aspects is that new insights are made based on the available data set and our costumer can use this information as a basis for their decisions. It would be great if these results could be visualized in an interactive dashboard to work with the data.
 
 Regarding the modelling process it is important that the model shall be deployed at the end of the project. Moreover some metrics are defined in order to define if the model is fulfilling the requested performance. As a regression model shall be created the following metrics are suitable in order the check if the model is performing good or not. These metrics are commonly used for evaluating and reporting the performance of regression models.
 
-- **RMSE/MSE:** Root Mean Squared Error / Mean Squared Error
+-   **RMSE/MSE:** Root Mean Squared Error / Mean Squared Error. The MSE is the mean of the squared differences between the predicted and the actual target values in the dataset. This means the result displays the squared units. This often leads to confusion (e.g. if the result is in squared dollars). The RMSE is the root of this value and is therefore often used when reporting results. Target for this project is to have a RMSE value which is smaller than 10.
 
-- **R squared:** 
+-   **R squared:** Measure how much variability in dependent variable can be explained by the model. This metric is the square of Correlation Coefficient (R). The values of this metrics are between 0 and 1. The higher this metric is indicates a better fit between prediction and the actual variable. For this project the R squared value shall be at 0.4, as we only have categorical variables in the dataset.
 
-- **MAE:** 
+-   **MAE:** Mean absolute error is the average of the absolute errors. Unlike the RMSE the changes in the MAE are linear and therefore intuitive. The created model at the end shall have a MAE of less than ten percent of the mean of the target value. After the data analysis was made it can be said that this would be less than 6.9.
 
+Sources: [Machine Learning Mastery: Regression Metrics](https://machinelearningmastery.com/regression-metrics-for-machine-learning/), [Towards Data Science: 3 best metrics to evaluate Regression Model?](https://towardsdatascience.com/what-are-the-best-metrics-to-evaluate-your-regression-model-418ca481755b)
 
 # Data
 
