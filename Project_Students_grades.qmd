@@ -38,21 +38,21 @@ The whole documentation of this project can be also found on Github: [Github Rep
 
 # Plan
 
-Before a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
+Before a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project to be considered succesfull. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
 
 To sum is up this chapter is basis for the project and defines the usecase, the problem which shall be solved in this project and the targets which shall be achieved in order to determine at the end if the project was successful or not.
 
-Note: The description in this chapter is without sources for the statements as the target was to describe a fitting plan chapter for this project. Some statements wont be applicable, but in the following they will be used as an assumption for the project.
+Note: The description in this chapter is without sources for the statements as the target was to describe a fitting "plan" chapter for this project. Some statements wont be applicable, but in the following they will be used as an assumption for the project.
 
 ## Identify use case
 
-We are a new start-up which is solving issues in companies with the latest data science technology. As we are not know yet in the market our costumers are a bit skeptical regarding our skills. Due to that we got the job to show our skills within this project. For this our costumer provided this dataset from kaggle:
+We are a new start-up which is solving issues in companies with the latest data science technology. As we are not know in the market yet, our costumers are a bit skeptical regarding our skills. Due to that we got the job to show our skills within this project. For this our costumer provided this dataset from kaggle:
 
 -   [Predict the performance of students](https://www.kaggle.com/datasets/rkiattisak/student-performance-in-mathematics?resource=download)
 
 This dataset contains 1000 observations of students and their performance on their exams. Moreover, several further information for each student is given.
 
-The target is to predict the performance of students based on demographic and other factors. In addition to that several research questions shall be answered (e.g which impact has the level of education of the parents on their exam score). In order to prove our skills to the costumer the following topics shall be included within that project:
+The target is to predict the performance of students based on demographic criteria and other factors. In addition to that several research questions shall be answered (e.g which impact has the level of education of the parents on their exam score). In order to prove our skills to the costumer the following topics shall be included within that project:
 
 -   SQL queries
 
@@ -68,13 +68,13 @@ The target is to predict the performance of students based on demographic and ot
 
 ## Frame the problem
 
-In the past it was noticed that the gap between students with very good marks and the one with r´quite bad ones is getting bigger and bigger, but it is not known yet why this keeps happening. This also leads to a gap when the students finish their education and they are going to work. More and more people are not having the required qualification for their jobs in the future as they are not able to finish their education due to bad marks. This needs to be stopped and changes in the system have to be made in order to improve this and to keep the country ready for the developments in the next decades.
+In the past it was noticed that the gap between students with very good marks and the one with quite bad ones is getting bigger and bigger, but it is not known yet why this keeps happening. This also leads to a gap when the students finish their education and they are going to work. In the future more and more people are not having the required qualification for their jobs as they are not able to finish their education due to bad marks. This needs to be stopped and changes in the system have to be made in order to improve this and to keep the country ready for the developments in the next decades.
 
-As our costumer is responsible for the education system they are very curious of the results from this project. Based on what can be learned in the queries and visualizations as well as in the models. They plan to make changes in their education system. For example a special assistance for students who are not performing that good. It depends on the results of this project to identify possible target groups who need more support in order to improve their skills and performance in exams. Therefore, it is important to learn which groups have disadvantages in their education and why. Only with this information it is possible to support them. As more and more students with a good mark are finishing their education the qualification in the labour market will increase and this will improve the economic power of our country.
+As our costumer is responsible for the education system they are very curious of the results from this project. Based on what can be learned in the queries and visualizations as well as in the models, they plan to make changes in their education system. For example a special assistance for students who are not performing that good. It depends on the results of this project to identify possible target groups who need more support in order to improve their skills and performance in exams. Therefore, it is important to learn which groups have disadvantages in their education and why. Only with this information it is possible to support them. As more and more students with a good mark are finishing their education the qualification in the labour market will increase and this will improve the economic power of our country.
 
 The model shall support on this task. As it will be possible to play around with the characteristics of the students and their background. The model can be the basis for the decisions for the education system.
 
-Due to the fact that a numeric target variable shall be predicted this project focuses on the supervised learning and a regression model shall be made.
+Due to the fact that a numeric target variable shall be predicted, this project focuses on the supervised learning and a regression model shall be created.
 
 ## Identify variables
 
@@ -98,11 +98,11 @@ Variables in the dataset:
 
 -   **Writing score:** Score which was achieved by the student in a standardized writing test.
 
-Target of this project is to get a general overview of the students performance. It is not needed to know in which course they are performing good or bad. This is important for the later steps to work with the data. A more generic variable shall be created which combines the total performance of the students instead of the detailed overview for math, reading and writing.
+Target of this project is to get a general overview of the students performance. It is not needed to know in which course they are performing good or bad. This is important for the later steps to work with the data, but not for now. Therefore, a more generic variable shall be created which combines the total performance of the students instead of the detailed overview for math, reading and writing.
 
 ## Define metrics
 
-This project has several aspects which determine that is was successful. Note all aspects need to be fulfilled, but there are some targets which should be fulfilled. One of this aspects is that new insights are made based on the available data set and our costumer can use this information as a basis for their decisions. It would be great if these results could be visualized in an interactive dashboard to work with the data.
+This project has several aspects which determine that is was successful. Note not all aspects need to be fulfilled, but there are some targets which should be fulfilled. One of this aspects is that new insights are made based on the available data set and our costumer can use this information as a basis for their decisions. It would be great if these results could be visualized in an interactive dashboard to work with the data.
 
 Regarding the modelling process it is important that the model shall be deployed at the end of the project. Moreover some metrics are defined in order to define if the model is fulfilling the requested performance. As a regression model shall be created the following metrics are suitable in order the check if the model is performing good or not. These metrics are commonly used for evaluating and reporting the performance of regression models.
 
@@ -111,6 +111,8 @@ Regarding the modelling process it is important that the model shall be deployed
 -   **R squared:** Measure how much variability in dependent variable can be explained by the model. This metric is the square of Correlation Coefficient (R). The values of this metrics are between 0 and 1. The higher this metric is indicates a better fit between prediction and the actual variable. For this project the R squared value shall be at 0.4, as we only have categorical variables in the dataset.
 
 -   **MAE:** Mean absolute error is the average of the absolute errors. Unlike the RMSE the changes in the MAE are linear and therefore intuitive. The created model at the end shall have a MAE of less than ten percent of the mean of the target value. After the data analysis was made it can be said that this would be less than 6.9.
+
+Beside these metrics the model has to be for sure better than a model which only predicts the average of the target variable.
 
 Sources: [Machine Learning Mastery: Regression Metrics](https://machinelearningmastery.com/regression-metrics-for-machine-learning/), [Towards Data Science: 3 best metrics to evaluate Regression Model?](https://towardsdatascience.com/what-are-the-best-metrics-to-evaluate-your-regression-model-418ca481755b)
 
@@ -138,7 +140,7 @@ con <- dbConnect(RSQLite::SQLite(), ":memory:")
 
 path_sql <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
 
-# Write data "gapminder" into database
+# Write data into database
 dbWriteTable(con, "exams_sql", read_csv(path_sql, show_col_types = FALSE))
 
 #show table in database
@@ -301,7 +303,7 @@ WHERE reading_score >90;
 
 ```
 
-Check the obervations of all females with more than 90 in writing score. The result shall be ordered by writing score (decreasing)
+Check the observations of all females with more than 90 in writing score. The result shall be ordered by writing score (decreasing)
 
 ```{sql connection=con}
 
@@ -374,7 +376,7 @@ FROM exams_sql
 WHERE parent_education = "high school" AND avg_exams_score BETWEEN 80 AND 90;
 ```
 
-Show all male ethnicities which have an average_exams score less than 70. Order the avg_exams_score ascending.
+Show all male ethnicities which have an average_exam score less than 70. Order the avg_exams_score ascending.
 
 ```{sql connection=con}
 
@@ -400,7 +402,7 @@ First of all the data will be imported from a github repo. The initial data set 
 In order to have the same data the whole time this dataset was downloaded and added to my github repo. in case that the kaggle dataset might be updated.
 
 ```{r read_csv}
-
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, collapse = TRUE)
 library(tidyverse)
 
 path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
@@ -536,13 +538,13 @@ In advance of the data splitting the definition of the target variable and the f
 
 The performance in the exams shall be predicted, for this the average performance is sufficient. As the target is to predict the performance, the variables for math, reading and writing score must not be included into the feature list.
 
-It would be also possible to make a use case which predicts e.g. the performance in math and also includes the students performance in the other exams. In this case only the general performance shall be predicted to see which generic attributes have a influence on students performance. Also exams are most time in a thigh schedule, which means that there wont be a lot of time between exams. Therefore it does not make sense to include also the performance in other exams to predict the performance in e.g. math. Moreover it takes some time until the results are available. So probably the students already had their exam before they receive the first results. Therefore the target in this project is the prediction of an average exam performance without including the performance in the other exams.
+It would be also possible to make a use case for students which predicts e.g. the performance in math and also includes the students performance in the other exams. In this case only the general performance shall be predicted to see which generic attributes have a influence on students performance. Also exams are most time in a thigh schedule, which means that there wont be a lot of time between exams. Therefore it does not make sense to include also the performance in other exams to predict the performance in e.g. math. Moreover it takes some time until the results are available. So probably the students already had their exam before they receive the first results. Therefore the target in this project is the prediction of an average exam performance without including the performance in the other exams.
 
 Nevertheless in the data exploration these other exam scores will be also included, but they wont go into the model.
 
 ```{r outcome_and_features}
-y_label <- 'avg_score'
-features <- c('gender', 'ethnic_group', 'parent_education', 'lunch', 'test_prep')
+y_label <- 'avg_score' #define target
+features <- c('gender', 'ethnic_group', 'parent_education', 'lunch', 'test_prep') #define features
 X <- exams %>%
   select(all_of(features))
 y <- exams %>%
@@ -553,7 +555,7 @@ Our data is now prepared for the data splitting and for building the pipelines.
 
 ## Data splitting
 
-Before the data exploration can be started, the data shall be split into a training and test set.
+Before the data exploration can be started, the data shall be split into a training and test set. No insights from the test data shall be used as data insights. Test data was not seen before therefore no information given by test data can be used.
 
 To ensure that the training and test set is representative of the various categories of `avg_score` in the whole dataset, lets have a look on the histogram
 
@@ -585,8 +587,6 @@ train_data <- training(data_split)
 #create test data set
 test_data <- testing(data_split)
 ```
-
-Cross Validation was removed here, as it makes more sense to add it after the data was prepared within the recipe.
 
 ## Analyze data
 
@@ -624,7 +624,7 @@ df_explo %>%
 
 The worst exam result is `20` while `100` is the best one. Moreover the mean and median values are almost similar and there is only a slight difference. This means that there are no big outliers included here (which is also easy to explain as 100 is the best possible performance in an exam). The IQR score of 20 tells us, that the difference between the 75th and 25th percentile is only having a difference of 20. So 50% of the data is within a difference of 20.
 
-25% of the students have an exam score of less than 59,3 and 25& of the students are above 79,3. 50% of the students are between 59,3 and 79,3 (the IQR value can be seen here)
+25% of the students have an exam score of less than 59,3 and 25% of the students are above 79,3. 50% of the students are between 59,3 and 79,3 (the IQR value can be seen here).
 
 Moreover it is interesting how the median, mean and iqr, q1, q3 values are distributed within the categorical variables.
 
@@ -777,7 +777,7 @@ for (i in features){
 
 It can be seen that there the variable **gender** is equally distributed on male and female.
 
-The **ethnic group** has the most occurrences within group C, while group A and group E have a smaller occur ency. Especially group A has only about 50 occurrences.
+The **ethnic group** has the most occurrences within group C, while group A and group E have a smaller occurency. Especially group A has only about 50 occurrences.
 
 Regarding the **parents education**- this feature has six levels which are not equally distributed. Four levels has a almost similar occurrence, while the level Bachelors and Masters degree have the lowest occurrences.
 
@@ -820,7 +820,7 @@ ggplot(data = df_explo, mapping = aes(x = avg_score, fill=gender)) +
          legend.key.size = unit(5, "mm"))
 ```
 
-Now it can be seen that female are performing much better than the males. There are a lot of test results above 80, while the males have a peak at above 75. But it is interesting that the are much more males who achieve 100 points in the exam compared to the women.
+Now it can be seen that female are performing better than the males. There are a lot of test results above 80, while the males have a peak at above 75. But it is interesting that the are much more males who achieve 100 points in the exam compared to the women.
 
 **Impact ethnic_group on Avg_score**
 
@@ -865,7 +865,7 @@ Quite similar results as in the R queries. It can be seen that the `associates d
 
 **Impact lunch on Avg_score**
 
-The impact of the lunch type shall be displayed within a density plot. Moreover, this plot shall be extended by the **Impact test preparation course on Avg_score**.
+The impact of the lunch type shall be displayed within a density plot. Moreover, this plot shall be extended by the **Impact of test preparation course on Avg_score**.
 
 ```{r lunch_test_prep_on_avg_score_dense}
 
@@ -907,7 +907,7 @@ ggplot(df_explo, aes(math_score, avg_score))+
 
 It can be clearly seen that there is a linear relationship between the math performance and the average performance (which makes sense as the average performance is based on the math performance, but this is made for demonstration purposes). The correlation between those variables is very strong.
 
-Lets add two further variables to this plot. Lets add the type of lunch and the test preparation as well.Moreover it shall be wrapped by the ethnic group.
+Lets add two further variables to this plot. Lets add the type of lunch and the test preparation as well. Moreover it shall be wrapped by the ethnic group.
 
 ```{r impact_avg_score_scatter}
 ggplot(df_explo, aes(math_score, avg_score, color=lunch, shape=test_prep))+
@@ -932,7 +932,7 @@ df_explo %>%
   vis_cor(cor_method = "spearman", na_action = "pairwise.complete.obs")
 ```
 
-It can be seen that all variables have a huge correlation with each other. Students which are performing good in one exam are likely to perform goog in all exams. But it can be also seen that the correlation between writing and reading is much higher than the correlation to math and the other exams.
+It can be seen that all variables have a huge correlation with each other. Students which are performing good in one exam are likely to perform good in all exams. But it can be also seen that the correlation between writing and reading is much higher than the correlation to math and the other exams.
 
 Lets have a look on the numbers:
 
@@ -1033,7 +1033,7 @@ Other datasets would need further steps which do not apply in this project due t
 
 Some features might include relevant information which could be redundant. That would be there wont be any benefit in adding both features in the model, if the target variable can be determined with one of those.
 
-Therefore it makes sense to remove features which have large correlations with each other. But this is more likely at numeric features. In the feature extraction this can be made by using the ratio of two two predictors or with more complex methods like principal component analysis.
+Therefore it makes sense to remove features which have large correlations with each other. But this is more likely at numeric features. In the feature extraction this can be made by using the ratio of two predictors or with more complex methods like principal component analysis.
 
 This also makes sense to use in case that the number of features is high.
 
@@ -1056,12 +1056,12 @@ exam_rec <-
   step_naomit(everything(), skip = TRUE) %>% #remove missing observations
   step_dummy(all_nominal()) %>% #converts factors into numeric binary (0 and 1) variables
   step_outliers_maha(all_numeric(), -all_outcomes()) %>%
-  step_outliers_lookout(all_numeric(),-contains(r"(.outliers)"),-all_outcomes()) %>%
-  step_outliers_remove(contains(r"(.outliers)")) %>%
+  step_outliers_lookout(all_numeric(),-contains(r"(.outliers)"),-all_outcomes()) %>% #identify outliers
+  step_outliers_remove(contains(r"(.outliers)")) %>% #remove outliers
   step_corr(all_predictors(), threshold = 0.7, method = "spearman") # remove correlated features (maybe not necessary as only character features as input)
 ```
 
-Lets have on the current set of variables and roles:
+Lets have a look on the current set of variables and roles:
 
 ```{r summary_recipe}
 
@@ -1084,7 +1084,7 @@ glimpse(prepped_data)
 
 The recipe was successful! The character columns were successfully changed to dummy variables, so that the models can work with them. Moreover three observations were removed as they were identified as outliers.
 
-Moreover a validation set shall be created. This shall be used to validate the later models. After best models is used, based on the validation set, the model can be tested with the test data. The amount of breaks is the value which was learned in the Data Visualization chapter.
+Moreover a validation set shall be created. This shall be used to validate the later models. After the best model is used (based on the validation set) the model can be tested with the test data. The amount of breaks is the value which was learned in the Data Visualization chapter.
 
 ```{r validation_set}
 set.seed(12)
@@ -1104,7 +1104,9 @@ Target for the Model and Deployment phase is to perform all steps in the usual w
 
 ## Select algorithm
 
-The target is to predict the *avg_score* of students in exams. This outcome variable is numeric. Therefore a **Regression** model needs to be selected for this usecase. The following page is used to select three different model types and their engines: [Tidymodels: Search parsnip models](https://www.tidymodels.org/find/parsnip/)
+The target is to predict the *avg_score* of students in exams. This outcome variable is numeric. Therefore a **Regression** model needs to be selected for this usecase. As labeled data is available a supervised learning is performed. The following page is used to select three different model types and their engines: [Tidymodels: Search parsnip models](https://www.tidymodels.org/find/parsnip/)
+
+Three different kind of models shall be selected in order to see how the performance of them differentiates and which is handling the available data the best.
 
 The following three models were selected:
 
