@@ -58,13 +58,17 @@ The target is to predict the performance of students based on demographic and ot
 
 -   Data visualization and the impact on the target variable
 
--   Data preparation
+-   Data Preprocessing
 
 -   Train different types of machine learning models
 
 -   Determine the best model and deploy it
 
 ## Frame the problem
+
+As our costumer is responsible for the education system they are very curious of the results. Based on what can be learned in the queries and visualizations as well as in the models. They plan to make changes in their education system. For example a special assistance for students who are not performing that good. It depends on the results of this project to identify possible target groups who need more support in order to improve their skills and performance in exams. Therefore, it is important to learn which groups have disadvantages in their education and why. Only with this information it is possible to support them. As more and more students with a good mark are finishing their education the qualification in the labour market will increase and this will improve the economic power of our country.
+
+The model shall support on this task. As it will be possible to play around with the characteristics of the students and their background. The model can be the basis for the decisions for the education system.
 
 ## Identify variables
 
