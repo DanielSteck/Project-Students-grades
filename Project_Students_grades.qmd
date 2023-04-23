@@ -1869,6 +1869,28 @@ The performance of the model on test data is worse than it was on the training d
 
 The R squared value is really low compared to the defined metrics at the project begin. It can be said that all created models are not fulfilling the defined metrics for a successful project. Nevertheless the model will be used for the deployment.
 
+**Compare the model with a simple model which only predicts the mean:**
+
+```{r add_mean_column}
+mean_model_data <- train_data %>%
+  mutate (mean = mean(avg_score))
+mean_model_data
+```
+
+Now lets see how this prediction is performing on the available data.
+
+```{r RMSE_mean_model}
+library(Metrics)
+RMSE(mean_model_data$avg_score, mean_model_data$mean)
+
+```
+
+The RMSE score of a model which is only predicting the mean is worse than the created model. Even thought the difference is not that big...
+
+As the created model is better than a simple model which only predicts the mean the project can continue and the deployment can be made.
+
+Atleast the model is better than this simple one for comparison. If the set target was not achieved, this still shows that the created model is atleast better then only a mean prediction.
+
 ## Deploy model
 
 Sources for Model deployment:
@@ -1963,7 +1985,7 @@ Three files have been created:
 In case that the model is running in another process (e.g. remotely) it would be also possible to get predictions from this model in R. Below the endpoint definition is made as well as the request for a new student exam performance.
 
 ```{r define_endpoint}
-endpoint <- vetiver_endpoint("http://127.0.0.1:8000/predict")
+#endpoint <- vetiver_endpoint("http://127.0.0.1:8000/predict")
 ```
 
 ```{r predict_from_endpoint}
@@ -2006,5 +2028,7 @@ First of all the connection has to be established. For this the data provided wi
 ```{r connection_rsconnect}
 rsconnect::setAccountInfo(name='danielsteck', token='27FA72E141C5D1C0E638BBD54BB2421B', secret='kxHXXMfIFDDJDac/jIvWP7OOffeX8+eWZdDKl/Hu')
 ```
+
+Note: Jan I have removed here my connection details for my shiny account.
 
 For creating shiny app it is required to build an separate server.R file as well as a ui.R file in which the data for the app are stored so that the app can be run. These files were created and are stored within t a separate folder in this working directory. Therefore no further input regarding shiny can be found below. Please have a look in the r file which is creating the shiny application.
