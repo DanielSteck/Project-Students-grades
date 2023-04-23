@@ -1112,9 +1112,29 @@ The following three models were selected:
 
 -   Boosted Tree (XGBoost)
 
+    -   Decision trees would be good for modelling non linear relationships, as we only have categorical variables this might be useful.
+
+    -   Risk of overfitting on the training data --\> Implement cross-validation in order to prevent this.
+
+    -   Boosted tree is an ensembeld learner which starts with simple base models and tries to "boost" their aggregate complexity --\> In practice often with a high performance for the results.
+
 -   Linear Regression (~~Keras~~ - changed to glmnet as I had issues to get keras and tensorflow running. For this a python installation and connection is needed)
 
+    -   Faster to train and are simpler. Linear algorithms might get issues if the data has many intersecting correlations, but this is not the case in this dataset.
+
+    -   Fits normally a "straight line" on the data --\> perfectly for our target variable.
+
+    -   Disadvantage: Prone to overfit with many input features and are not that good in expressing non-linear relationships --\> Both does not apply for this dataset, but only categorical input data is available.
+
 -   Single layer neural network (~~Keras~~ - changed to nnet, see above)
+
+    -   Can recognize patterns by itself.
+
+    -   Good for complex datasets --\> our dataset is quite simple
+
+    -   Sadly it is not really possible to find out why the model has decided for the output. Also hyperparameter tuning is not that easy.
+
+Sources: [Elite Datascience: Model Selection](https://elitedatascience.com/algorithm-selection), [Towards Datascience: Algorithm selection](https://towardsdatascience.com/do-you-know-how-to-choose-the-right-machine-learning-algorithm-among-7-different-types-295d0b0c7f60)
 
 ## Model Specification
 
@@ -1243,7 +1263,7 @@ assess_xgb_res_1 %>%
 
 ```
 
-If we consider that this is the first created model and that there are only categorical features in the dataset, this result not that bad. Lets see in the next chapter how the Boosted Tree Performance can be increased. Further steps are to adapt the hyperparameters and the features which are added into the model.
+If we consider that this is the first created model and that there are only categorical features in the dataset, this result (RMSE) not that bad, but the R squared is low. Lets see in the next chapter how the Boosted Tree Performance can be increased. Further steps are to adapt the hyperparameters and the features which are added into the model.
 
 ### Linear Regression
 
@@ -1326,7 +1346,7 @@ assess_xgb_res_1 %>%
 
 ## Feature Selection
 
-After the initial models were created and their results were visualized, lets have a look on the feature importance's. Currently all available features were used for the model creation. Therefore lets analyze the Feature Importance and therefore it might be better to remove some features.
+After the initial models were created and their results were visualized, lets have a look on the feature importance's. Currently all available features were used for the model creation. Therefore lets analyze the Feature Importance and maybe it might be better to remove some features.
 
 ```{r feature_importance_caret}
 
@@ -1372,9 +1392,9 @@ step.model <- train(avg_score ~ gender + ethnic_group + parent_education + lunch
 step.model$results
 ```
 
-It can be seen that we get the best scores for RMSE and R squared if all variables are added into the model. But the difference between 3, 4 and 5 variables is very small. Moreover there is no consideration of the adjusted R squared. R squared is increasing most times if additional variables are added into the model while the adjusted R squared is adding a penalty for this.
+It can be seen that we get the best scores for RMSE and R squared are achieved if all variables are added into the model. But the difference between 3, 4 and 5 variables is very small. Moreover there is no consideration of the adjusted R squared. R squared is increasing most times if additional variables are added into the model while the adjusted R squared is adding a penalty for this.
 
-Nevertheless we will continue with the model which has the highest Rsquared and RMSE score. It needs to be added that both of these values are not that good.
+Nevertheless we will continue with the model which has the highest R squared and RMSE score. It needs to be added that both of these values are not that good.
 
 Lets display the best tuning values (nvmax) selected by the train() function.
 
@@ -1464,11 +1484,11 @@ The model performance improved by adapting the hyper parameters. The RMSE score 
 
 The hyperparameter tuning is based on the following documentations:
 
--   https://www.tidymodels.org/start/tuning/
+-   [Tidymodels: Tuning](https://www.tidymodels.org/start/tuning/)
 
--   https://www.tidymodels.org/learn/work/tune-svm/
+-   [Tidymodels: Tune SVM](https://www.tidymodels.org/learn/work/tune-svm/) --\> includes also a generic approach
 
--   https://tune.tidymodels.org
+-   [Tidymodels: Tune](https://tune.tidymodels.org)
 
 First of all a new model specification is created. In this the hyperparameters are specified which shall be tuned.
 
@@ -1550,7 +1570,7 @@ xgboost_best
 
 The hyper parameter optimization with the tune package increased the RMSE a lot compared to the initial model. It has also increased to the manual selected hyper parameters.
 
-But it has to be said that I am skeptical regarding the selected best hyper parameters... Tree_depth of one and a min_n of two do not seem to be robust for new data...
+But it has to be said that I am skeptical regarding the selected best hyper parameters... Tree_depth of one and a min_n of two do not seem to be robust for new data... Probably the model is overfitting.
 
 ### Linear regression
 
@@ -1663,7 +1683,7 @@ lin_res_3 %>%
   show_best("rmse")
 ```
 
-Moreover a selection for the best tree can be made. With that the single set with the best hyper parameters is selected:
+Moreover a selection for the best linear model can be made. With that the single set with the best hyper parameters is selected:
 
 ```{r lin_reg_best}
 lin_best <- lin_res_3 %>%
@@ -1793,7 +1813,7 @@ neural_res_3 %>%
   show_best("rmse")
 ```
 
-Moreover a selection for the best tree can be made. With that the single set with the best hyperparameters is selected:
+Moreover a selection for the best result can be made. With that the single set with the best hyperparameters is selected:
 
 ```{r neural_best}
 neural_best <- neural_res_3 %>%
@@ -1809,11 +1829,19 @@ The best models (based on lowest RMSE) are:
 2.  RMSE: 12.10782 - XGBoost
 3.  RMSE: 12.13196 - Neural Network
 
-All models have very similar performance metrics and the differences are minor. But the RMSE score is still quite high. Probably the available (only categorical) variables are not that good for predicting the performance of the students in the exams. This was also seen in the previous chapters with the R squared score which was only slightly above 0.25.
+All models have very similar performance metrics and the differences are minor. But the RMSE score is still quite high and the R squared quite low\... Probably the available (only categorical) variables are not that good for predicting the performance of the students in the exams. This was also seen in the previous chapters with the R squared score which was only slightly above 0.25.
 
 In the next step the best model will be fitted a last time on the training data before the deployment phase can be started.
 
+For the final model the Linear regression models is chosen as it has one the one hand the best results and on the other hand the model is quite simple and is well suited for predicting linear relationships.
+
 # Deployment
+
+Within this chapter three different topics shall be made. On the one hand the model deployment via ventiver shall be made. For this the model shall be validated, deployed, etc...
+
+Moreover, a dashbaord shall be created which displays the dataset and in which different visualizations can be made. It would be also possible to add there the model and make predictions within that Dashboard, but I do prefer to also have a look in the other tools instead of going very deep only in one tool. With that I am familiar with more tools and can decide in future which fits best for certain problems. The code for the dashboard is in a separate folder.
+
+As third target of this chapter MLFlow shall be used for modeling, model monitoring etc.
 
 ## Validate model
 
@@ -1839,6 +1867,8 @@ last_fit_model %>%
 
 The performance of the model on test data is worse than it was on the training data. The RMSE metric increased from 12.1 to 12.77. Probably the model was overfitted a bit on the training data. But the RMSE score is still better than for certain created models in the Modelling phase (on training data).
 
+The R squared value is really low compared to the defined metrics at the project begin. It can be said that all created models are not fulfilling the defined metrics for a successful project. Nevertheless the model will be used for the deployment.
+
 ## Deploy model
 
 Sources for Model deployment:
@@ -1851,7 +1881,7 @@ Sources for Model deployment:
 
 -   [Posit: End-to_end Data Science with RStudio Connect](https://colorado.posit.co/rsc/bike-predict-r-dashboard/document.html)
 
--   https://cran.r-project.org/web/packages/vetiver/vetiver.pdf
+-   [Ventiver documentation](https://cran.r-project.org/web/packages/vetiver/vetiver.pdf)
 
 -   [Plumber Documentation](https://www.rplumber.io/articles/introduction.html)
 
@@ -1871,13 +1901,14 @@ library(vetiver)
 library(glue)
 library(rsconnect)
 library(pins)
+# define names for model and pin
 model_name <- "Prediction_of_exam_score_model_r"
 pin_name <- glue("daniel.steck/{model_name}")
 
 v <- vetiver_model( #create vetiver model
-  last_fit_model_depl,
-  model_name,
-  versioned = TRUE
+  last_fit_model_depl, #model which performed the last fit
+  model_name, #model name from above
+  versioned = TRUE #versioning shall be made
 )
 v
 ```
@@ -1907,12 +1938,13 @@ If this code chunk is running it is possible to make predictions with the model 
 
 ```{r}
 library(plumber)
-pr() %>%
-  vetiver_api(v) %>%
-  pr_run(port = 8000)
+#code is commeted out in order for the rendering of the quarto file. This code shall be put into the console in order to make predictions on the model.
+#pr() %>%
+#  vetiver_api(v) %>%
+#  pr_run(port = 8000)
 ```
 
-It is also possible to deploy the vetiver API to other infrastructures than Posit Connect (e.g. AWS or Azure). For this a Docker container helps a lot. This docker container will be created in the next code block.
+It is also possible to deploy the vetiver API to other infrastructures than Posit Connect (e.g. AWS or Azure). For this a Docker container helps a lot. This docker container will be created in the next code block. The code is commented out as it shall not be made for each run of the document. Moreover there wont be further changes in the model. If new files shall be created the code can be added to the console or the "\#" can be removed.
 
 ```{r prepare_dockerfile}
 #vetiver_prepare_docker(model_board, model_name)
@@ -1947,6 +1979,8 @@ random_student <- tibble (
 
 Sadly this prediction is not working as I always get the error message, that the connection is refused...
 
+Probably the issue is that it was only deployed locally maybe the prediction from the endpoint is only possible as long as the model is deployed locally. In order to execute this chunk here, the previous needs to be stopped.
+
 ## Monitor model
 
 After the model was successfully deployed it is very important to monitor its statistical performance. The issue is that the decrease of model performance is not noticed as the model can continue returning predictions without errors. These quiet performance problems might occur when the statistical distribution of an input feature changes or when there is change in the relationship between input features and the outcome.
@@ -1973,17 +2007,4 @@ First of all the connection has to be established. For this the data provided wi
 rsconnect::setAccountInfo(name='danielsteck', token='27FA72E141C5D1C0E638BBD54BB2421B', secret='kxHXXMfIFDDJDac/jIvWP7OOffeX8+eWZdDKl/Hu')
 ```
 
-```{r load_shiny}
-library(shiny)
-```
-
-Shiny demo application:
-
-For creating shiny app it is required to build an separate server.R file as well as a ui.R file in which the data for the app are stored so that the app can be run. These files were created and are stored within this working directory.
-
-**Test application**
-
-```{r}
-library(shiny)
-runApp()
-```
+For creating shiny app it is required to build an separate server.R file as well as a ui.R file in which the data for the app are stored so that the app can be run. These files were created and are stored within t a separate folder in this working directory. Therefore no further input regarding shiny can be found below. Please have a look in the r file which is creating the shiny application.
