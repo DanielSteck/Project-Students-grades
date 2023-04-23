@@ -42,6 +42,8 @@ Defore a project can be started the planning needs to be made first. Without the
 
 To sum is up this chapter is basis for the project and defines the usecase, the problem which shall be solved in this project and the targets which shall be achieved in order to determine at the end if the project was successful or not.
 
+Note: The description in this chapter is without sources for the statements as the target was to describe a fitting plan chapter for this project. Some statements wont be applicable, but in the following they will be used as an assumption for the project.
+
 ## Identify use case
 
 We are a new start-up which is solving issues in companies with the latest data science technology. As we are not know yet in the market our costumers are a bit skeptical regarding our skills. Due to that we got the job to show our skills within this project. For this our costumer provided this dataset from kaggle:
@@ -66,11 +68,33 @@ The target is to predict the performance of students based on demographic and ot
 
 ## Frame the problem
 
-As our costumer is responsible for the education system they are very curious of the results. Based on what can be learned in the queries and visualizations as well as in the models. They plan to make changes in their education system. For example a special assistance for students who are not performing that good. It depends on the results of this project to identify possible target groups who need more support in order to improve their skills and performance in exams. Therefore, it is important to learn which groups have disadvantages in their education and why. Only with this information it is possible to support them. As more and more students with a good mark are finishing their education the qualification in the labour market will increase and this will improve the economic power of our country.
+In the past it was noticed that the gap between students with very good marks and the one with r´quite bad ones is getting bigger and bigger, but it is not known yet why this keeps happening. This also leads to a gap when the students finish their education and they are going to work. More and more people are not having the required qualification for their jobs in the future as they are not able to finish their education due to bad marks. This needs to be stopped and changes in the system have to be made in order to improve this and to keep the country ready for the developments in the next decades.
+
+As our costumer is responsible for the education system they are very curious of the results from this project. Based on what can be learned in the queries and visualizations as well as in the models. They plan to make changes in their education system. For example a special assistance for students who are not performing that good. It depends on the results of this project to identify possible target groups who need more support in order to improve their skills and performance in exams. Therefore, it is important to learn which groups have disadvantages in their education and why. Only with this information it is possible to support them. As more and more students with a good mark are finishing their education the qualification in the labour market will increase and this will improve the economic power of our country.
 
 The model shall support on this task. As it will be possible to play around with the characteristics of the students and their background. The model can be the basis for the decisions for the education system.
 
 ## Identify variables
+
+The provided dataset contains eight different variables and 1000 observations. Each observation represents one student (data was anonymized) with his/her score in exams and their characteristics and their background.
+
+Variables in the dataset:
+
+-   **Gender:** Gender of the student. This variable has two levels in this dataset. The available data is split either in male or female.
+
+-   **Race/ethnicity:** This columns describe the racial or ethnic background of the students (e.g. Asian, African-American, Hispanic, etc.). Note: This column was transferred in groups without information which group displays which ethnicity. This was done to get the result in this project only on the data itself and to avoid the influence of prejudges and stereotypes.
+
+-   **Parental level of education:** What is the highest level of education attained from the students parents.There is no differentiation between the parents and only the highest level of education is listed here. The level of education from the other parent is ignored.
+
+- **Lunch:** What type of lunch do the students receive: Either the standard type of lunch or a free/reduced option. The free/reduced option is probably only available for students who have a family which is kind of poor.
+
+- **Test preparation course:** Did the students complete a test preparation course or not?
+
+- **Math score:** Score which was achieved by the student in a standardized mathematics test.
+
+- **Reading score:** Score which was achieved by the student in a standardized reading test.
+
+- **Writing score:** Score which was achieved by the student in a standardized writing test.
 
 ## Define metrics
 
