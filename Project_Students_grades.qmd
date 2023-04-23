@@ -74,6 +74,8 @@ As our costumer is responsible for the education system they are very curious of
 
 The model shall support on this task. As it will be possible to play around with the characteristics of the students and their background. The model can be the basis for the decisions for the education system.
 
+Due to the fact that a numeric target variable shall be predicted this project focuses on the supervised learning and a regression model shall be made.
+
 ## Identify variables
 
 The provided dataset contains eight different variables and 1000 observations. Each observation represents one student (data was anonymized) with his/her score in exams and their characteristics and their background.
@@ -96,7 +98,21 @@ Variables in the dataset:
 
 - **Writing score:** Score which was achieved by the student in a standardized writing test.
 
+Target of this project is to get a general overview of the students performance. It is not needed to know in which course they are performing good or bad. This is important for the later steps to work with the data. A more generic variable shall be created which combines the total performance of the students instead of the detailed overview for math, reading and writing.
+
 ## Define metrics
+
+This project has several aspects which determine that is was successful. Note all aspects need to be fulfilled, but there are some targets which should be fulfilled.
+One of this aspects is that new insights are made based on the available data set and our costumer can use this information as a basis for their decisions. It would be great if these results could be visualized in an interactive dashboard to work with the data.
+
+Regarding the modelling process it is important that the model shall be deployed at the end of the project. Moreover some metrics are defined in order to define if the model is fulfilling the requested performance. As a regression model shall be created the following metrics are suitable in order the check if the model is performing good or not. These metrics are commonly used for evaluating and reporting the performance of regression models.
+
+- **RMSE/MSE:** Root Mean Squared Error / Mean Squared Error
+
+- **R squared:** 
+
+- **MAE:** 
+
 
 # Data
 
