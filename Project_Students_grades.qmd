@@ -44,6 +44,26 @@ To sum is up this chapter is basis for the project and defines the usecase, the 
 
 ## Identify use case
 
+We are a new start-up which is solving issues in companies with the latest data science technology. As we are not know yet in the market our costumers are a bit skeptical regarding our skills. Due to that we got the job to show our skills within this project. For this our costumer provided this dataset from kaggle:
+
+-   [Predict the performance of students](https://www.kaggle.com/datasets/rkiattisak/student-performance-in-mathematics?resource=download)
+
+This dataset contains 1000 observations of students and their performance on their exams. Moreover, several further information for each student is given.
+
+The target is to predict the performance of students based on demographic and other factors. In addition to that several research questions shall be answered (e.g which impact has the level of education of the parents on their exam score). In order to prove our skills to the costumer the following topics shall be included within that project:
+
+-   SQL queries
+
+-   R queries
+
+-   Data visualization and the impact on the target variable
+
+-   Data preparation
+
+-   Train different types of machine learning models
+
+-   Determine the best model and deploy it
+
 ## Frame the problem
 
 ## Identify variables
