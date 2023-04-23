@@ -20,7 +20,7 @@ I, Daniel Steck, hereby state that I have not communicated with or gained inform
 
 # Introduction
 
-This project was created within the modul "Programming languages for Data Science.This project will follow the data science lifecycle, which consists of four main topics:
+This project was created within the module "Programming languages for Data Science.This project will follow the data science life-cycle, which consists of four main topics:
 
 -   Plan
 
@@ -30,13 +30,17 @@ This project was created within the modul "Programming languages for Data Scienc
 
 -   Deployment
 
-The main focus within this project will be on the **Deployment** part.
+This project focuses on using all techniques which were learned during the lecture. Moreover it has the target to learn further topics during the project and to implement them (e.g. Deployment via ventiver or shiny).
 
 ![Data Science Lifecycle](Images/Data_Science_lifecycle.PNG)
 
-The whole documentation of this project can be also found on [Github Repo: Student Grades](https://github.com/DanielSteck/Project-Students-grades)
+The whole documentation of this project can be also found on Github: [Github Repo: Student Grades](https://github.com/DanielSteck/Project-Students-grades)
 
 # Plan
+
+Defore a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
+
+To sum is up this chapter is basis for the project and defines the usecase, the problem which shall be solved in this project and the targets which shall be achieved in order to determine at the end if the project was successful or not.
 
 ## Identify use case
 
@@ -897,16 +901,6 @@ df_explo %>%
 ```
 
 As the numeric variables are already so good in predicting the avg_score, the impact of the lunch type is no longer seen. In the analysis before it was clearly seen that this variable has a big impact on the avg_score.
-
-## Define schema
-
-The main parts of defining the schema were already performed within the Data Ingestion chapter.Nevertheless some of the check functions of tidyverse will be applied here.
-
-```{r check_class}
-#check_class(df_explo)
-```
-
-https://recipes.tidymodels.org/reference/index.html#check-functions
 
 ## Anomaly detection
 
