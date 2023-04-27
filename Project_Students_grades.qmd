@@ -1994,7 +1994,7 @@ random_student <- tibble (
   ethnic_group = "group E",
   parent_education ="some college", 
   lunch = "standard",
-  test_preparation = "completed"
+  test_prep = "completed"
 )
 #predict(endpoint, random_student)
 ```
@@ -2032,3 +2032,36 @@ rsconnect::setAccountInfo(name='danielsteck', token='27FA72E141C5D1C0E638BBD54BB
 Note: Jan I have removed here my connection details for my shiny account.
 
 For creating shiny app it is required to build an separate server.R file as well as a ui.R file in which the data for the app are stored so that the app can be run. These files were created and are stored within t a separate folder in this working directory. Therefore no further input regarding shiny can be found below. Please have a look in the r file which is creating the shiny application.
+
+### Model Deployment in shiny
+
+As I am having problemns in getting MLFlow running, I decided to switch to shiny. Instead of performing the MLFlow topics I am going to deploy my model in shiny instead.
+
+First of all the Model gets saved as RDS File.
+
+```{r save_model}
+# Save the model as an RDS file
+saveRDS(last_fit_model_depl, file = "exam_model.rds")
+```
+
+Now lest test if the model is still working:
+
+```{r test_initial_model}
+random_student <- data.frame (
+  gender = "female",
+  ethnic_group = "group E",
+  parent_education ="some college", 
+  lunch = "standard",
+  test_prep = "completed"
+)
+predict(last_fit_model_depl, random_student)
+```
+
+Now lets see if we get the same result with the saved and loaded model. This is done to validate that e.g. no preprocessing steps are getting lost
+
+```{r test_loaded_model}
+loaded_model <- readRDS( file = "exam_model.rds")
+predict(loaded_model, random_student)
+```
+
+The result is the same, thats very good. Therefore this saved model can be used within the dashboard.
