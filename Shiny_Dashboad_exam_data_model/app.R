@@ -5,6 +5,7 @@ library(dplyr)
 library(tidyverse)
 library(janitor)
 library(ggplot2)
+library(shinythemes)
 # load the dataset and clean up the names plus add the target variable
 path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
 dataset <- read_csv(path, show_col_types = FALSE)
@@ -24,14 +25,17 @@ dataset$test_preparation_course <- factor(dataset$test_preparation_course)
 # load the model
 loaded_model <- readRDS(file = "exam_model.rds")
 
+
 # define ui
 ui <- dashboardPage(
+  
   
   # Title of dashboard
   dashboardHeader(title= "Exam data visualization"),
   
   # Content in sidebar  
   dashboardSidebar(
+    
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
       #menuItem("Widgets", tabName = "widgets", icon = icon("th")),
@@ -45,6 +49,7 @@ ui <- dashboardPage(
       # Content in first tab
       tabItem(tabName = "dashboard",
               fluidPage( #fluid page make the correct visualization based on users display
+                shinythemes::themeSelector(),
                 titlePanel(h1("Data Visualization")),
                 fluidRow(
                   # define headers, in a separate fluid row in order to have input slider and plot on the same height
@@ -248,16 +253,13 @@ ui <- dashboardPage(
       )
     )
   )
+  
 )
 
 # define the server, app contains of ui and server
 server <- function(input, output) {
-  # read in the data and make preprocessing  
-  # path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
-  #dataset <- read_csv(path, show_col_types = FALSE)
-  #dataset <- dataset %>% clean_names
-  #dataset <- dataset %>% mutate (avg_score = (math_score + reading_score + writing_score)/3)
   
+
   # Histogram of average exam scores  
   output$hist_plot_score <- renderPlot({
     # x shall be the amount of collected students
@@ -386,9 +388,6 @@ server <- function(input, output) {
   output$selected_input_test_prep <- renderText({ 
     paste("Selected as test preparation course:", input$model_input_test_prep)
   })
-  
-  
-  
   
   
 }
