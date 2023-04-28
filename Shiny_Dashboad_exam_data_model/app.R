@@ -181,18 +181,24 @@ ui <- dashboardPage(
                      fluidRow(
                        # define headers, in a separate fluid row in order to have input slider and plot on the same height
                        h2("Introduction"),
-                       "Add text here.",
+                       "In this chapter you can make predictions regarding the average exam score which can be predicted for students with certain characteristics. The added model is the same which was created within the quarto document. The model was saved as .rds file and was loaded into this application.",
                        br(),
-                       "and here.",
+                       "Feel free to play around with the possible inputs on the right. Below you can find the predicttion of the average exam score. Moreover you can find as text which data was added into the model. Furthermore, the added data is displayed as a Dataframe.",
                        br(),
-                       "1.",
+                       h4("Model Description"),
+                       "The added model is a linerar regression model which takes all features as an Input. The output which shall be predicted is the average score in the exams. The training was made with all available data from the exam dataset.",
                        br(),
+                       "The following recipe steps are made as preprocessing and are added into a recipe:",
+                       br(),
+                       "1. Drop missing data. The whole row will be dropped in case of missing data.",
+                       br(),
+                       "2. Removal of outliers.",
+                       br(),
+                       "3. One Hot Encoding for the categorical variables.",
+                       br(),
+                       "4. Removal of correlated features. For this the spearman method is used with a threshhold of 0,7.",
                        br(),
                        h2("Predict the exam score of a student"),
-
-                       "Input on the right.",
-                       br(),
-                       "Add text here.",
                        br(),
 
                        
@@ -213,7 +219,7 @@ ui <- dashboardPage(
                                               verbatimTextOutput(outputId = "prediction"),
                                               #title = "Histogram of predicted exam scores", status = "primary", solidHeader = TRUE, collapsible =TRUE,
                                               #plotOutput("his_prediction", height = 450),
-                                              
+                                              h4("Selected Values"),
                                               
                                               
 
@@ -223,6 +229,9 @@ ui <- dashboardPage(
                                               textOutput("selected_input_education"),
                                               textOutput("selected_input_lunch"),
                                               textOutput("selected_input_test_prep"),
+                                              br(),
+                                              h4("Selected values as a Dataframe"),
+                                              br(),
                                               tableOutput("dataframe")
                                               
                                             )
@@ -351,13 +360,6 @@ server <- function(input, output) {
      paste("The model prediction is:", round(predicted_value(), 2))
    })
 
-   
-   
-   
-   
-   
-   
-   
    output$selected_input_gender <- renderText({ 
      paste("Selected as gender:", input$model_input_gender)
    })
