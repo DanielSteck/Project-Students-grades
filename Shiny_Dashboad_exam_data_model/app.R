@@ -4,7 +4,13 @@ library(shinydashboard)
 library(tidyverse)
 library(janitor)
 library(ggplot2)
-
+# load the dataset and clean up the names plus add the target variable
+path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
+dataset <- read_csv(path, show_col_types = FALSE)
+dataset <- dataset %>% clean_names
+dataset <- dataset %>% mutate (avg_score = (math_score + reading_score + writing_score)/3)
+# load the model
+loaded_model <- readRDS(file = "exam_model.rds")
 
 # define ui
 ui <- dashboardPage(
@@ -181,6 +187,36 @@ ui <- dashboardPage(
                        
                      ),
                      fluidRow(
+                       column(9,
+                              sidebarLayout(position="right", # sidebar shall be on the right
+                                            sidebarPanel( # Choose your variables for the model prediction.
+                                              title = "Data for prediction", status="warning", solidHeader = TRUE, "Chooses the data for the student",
+                                              selectInput("model_input_gender", label = "gender", choices = unique(dataset$gender)),
+                                              selectInput("model_input_ethnicity", label = "Ethnic group", choices = unique(dataset$race_ethnicity)),
+                                              selectInput("model_input_education", label = "Parent education", choices = unique(dataset$parental_level_of_education)),
+                                              selectInput("model_input_lunch", label = "Type of lunch", choices = unique(dataset$lunch)),
+                                              selectInput("model_input_test_prep", label = "Test preparation course", choices = unique(dataset$test_preparation_course)),
+                                            ),
+                                            # define the main panel, in this panel the model prediction shall be displayed
+                                            mainPanel(
+                                              verbatimTextOutput(outputId = "prediction"),
+                                              #title = "Histogram of predicted exam scores", status = "primary", solidHeader = TRUE, collapsible =TRUE,
+                                              #plotOutput("his_prediction", height = 450),
+                                              
+                                              
+                                              
+
+                                              
+                                              textOutput("selected_input_gender"),
+                                              textOutput("selected_input_ethnicity"),
+                                              textOutput("selected_input_education"),
+                                              textOutput("selected_input_lunch"),
+                                              textOutput("selected_input_test_prep"),
+                                              
+                                            )
+                              )
+                       )
+
                        
                      )
                      
@@ -195,10 +231,10 @@ ui <- dashboardPage(
 # define the server, app contains of ui and server
 server <- function(input, output) {
 # read in the data and make preprocessing  
-  path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
-  dataset <- read_csv(path, show_col_types = FALSE)
-  dataset <- dataset %>% clean_names
-  dataset <- dataset %>% mutate (avg_score = (math_score + reading_score + writing_score)/3)
+ # path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
+  #dataset <- read_csv(path, show_col_types = FALSE)
+  #dataset <- dataset %>% clean_names
+  #dataset <- dataset %>% mutate (avg_score = (math_score + reading_score + writing_score)/3)
  
 # Histogram of average exam scores  
    output$hist_plot_score <- renderPlot({
@@ -247,7 +283,7 @@ server <- function(input, output) {
                      "Type of lunch" = dataset$lunch,
                      "Test preparation course" = dataset$test_preparation_course)
      # add dense plot, (Also with the input from the amount of students slider --> did not work)
-     ggplot(dataset, aes(x=dataset$avg_score, fill=data2)) +
+     ggplot(dataset, aes(x=avg_score, fill=data2)) +
        geom_density(alpha=0.7) + 
        scale_fill_manual(input$var2, values = c("#339999", "#FFFF66", "blue", "green", "orange", "red"))+
        facet_wrap(~dataset$gender, ncol=1)+ #facet_wrap(~data3) is not working therefore as a temporary solution I will use gender always as facet_wrap
@@ -267,6 +303,61 @@ server <- function(input, output) {
    output$selected_var3 <- renderText({ 
      paste("You have selected", input$var3, "as facet wrap in the density plot")
    })
+   
+   
+   #random_student <- data.frame (
+     #gender = "female",
+     #ethnic_group = "group E",
+     #parent_education ="some college", 
+     #lunch = "standard",
+     #test_prep = "completed")
+   
+   predicted_value <- ({
+     # Create a data frame with the user's input
+     random_student <- reactive({data.frame (
+       gender = input$model_input_gender,
+       ethnic_group = input$model_input_ethnicity,
+       parent_education = input$model_input_education,
+       lunch = input$model_input_lunch,
+       test_prep = input$model_input_test_prep,
+       
+     )
+     })
+     
+
+     
+     # Make a prediction on the new data using the loaded model
+     predict(loaded_model, random_student)
+   })
+   
+   
+   output$prediction <- renderText({
+     #paste("The model prediction is:", round(predicted_value(), 2))
+     paste("The model prediction is:", predicted_value)
+   })
+   
+   output$selected_input_gender <- renderText({ 
+     paste("Selected as gender:", input$model_input_gender)
+   })
+   
+   output$selected_input_ethnicity <- renderText({ 
+     paste("Selected as Ethnic Group:", input$model_input_ethnicity)
+   })
+   
+   output$selected_input_education <- renderText({ 
+     paste("Selected as Level of parents education:", input$model_input_education)
+   })
+   
+   output$selected_input_lunch <- renderText({ 
+     paste("Selected as type of lunch:", input$model_input_lunch)
+   })
+   
+   output$selected_input_test_prep <- renderText({ 
+     paste("Selected as test preparation course:", input$model_input_test_prep)
+   })
+   
+   
+
 
    
 }
