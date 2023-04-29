@@ -1958,6 +1958,12 @@ Usage of plumber in order to deploy the model with vetiver.
 
 If this code chunk is running it is possible to make predictions with the model in a separate window.
 
+pr() %\>%
+
+vetiver_api(v) %\>%
+
+pr_run(port = 8000)
+
 ```{r}
 library(plumber)
 #code is commeted out in order for the rendering of the quarto file. This code shall be put into the console in order to make predictions on the model.
@@ -2018,6 +2024,57 @@ Sources for the attempt of model monitoring:
 -   [Vetiver compute metrics](https://rstudio.github.io/vetiver-r/reference/vetiver_compute_metrics.html)
 
 -   [Vetiver Model monitoring](https://vetiver.rstudio.com/get-started/monitor.html)
+
+### Ventiver attempt without a local board
+
+The previous ventiver deployment was only made in a board_temp. Now lets try to deploy it on a ventiver board:
+
+```{r ventiver_model_definition}
+v_2 <- readRDS( file = "exam_model.rds")
+
+```
+
+However, based on this link I assume that it is no longer possible to use the posit and rsconnect tooling without buying a subscription (which is also only possible via meetings with the posit sales team): [Posit Connect decommissioned](http://beta.rstudioconnect.com)
+Below is code on how I think it might have workied with the Server Key and API key. Note the keys from shiny are not applicable here and do not work for this...
+
+```{r connect_rstudio}
+# Use RStudio Connect as a board.
+#board <- pins::board_rsconnect(
+#  server = Sys.getenv("CONNECT_SERVER"),
+ # key = Sys.getenv("CONNECT_API_KEY"),
+ # versioned = TRUE
+#)
+# Write the model to the board.
+#board %>%
+ #vetiver_pin_write(vetiver_model = v_2)
+```
+
+```{r deploy_model_as_plumber_api}
+# Add server if you have one
+#rsconnect::addServer(
+#  url = "https://colorado.rstudio.com/rsc/__api__",
+#  name = "colorado"
+#)
+
+# Add account creditials, if you have some
+#rsconnect::connectApiUser(
+ # account = "sam.edwardes",
+  #server = "colorado",
+  #apiKey = Sys.getenv("CONNECT_API_KEY"),
+#)
+
+# Deploy to Connect
+#vetiver_deploy_rsconnect(
+ # board = model_board,
+  #name = pin_name,
+  #appTitle = "BPrdiction Model for students exam scores - API",
+  #predict_args = list(debug = FALSE),
+  #account = "sam.edwardes",
+  #server =  "colorado"
+#)
+```
+
+I will stop here as I can not do debugging of the code for the model metrics as long as I do not have the access to rstudio connect. Links for the model monitoring and metrics to display are in the monitor chapter. Sadly this is not possible without the access to rsconnect, which is no longer possible.
 
 ## Shiny
 
