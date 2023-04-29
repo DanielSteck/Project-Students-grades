@@ -3,15 +3,17 @@ title: "Project_student_grades"
 subtitle: "Programming languages for Data Science"
 author: "Daniel Steck"
 date: "04.07.2023"
-format: 
+format:
   html:
     code-fold: true
     code-tools: true
-output:
-  html_document:
+    code-summary: "Show the code"
     toc: true
-    toc_depth: 3
-    number_sections: true
+    toc-depth: 20
+    toc-expand: 2
+    number-sections: true
+    number-depth: 3
+    smooth-scroll: true
 ---
 
 # Academic Honesty Statement
@@ -38,9 +40,9 @@ The whole documentation of this project can be also found on Github: [Github Rep
 
 # Plan
 
-Before a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project to be considered succesfull. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
+Before a project can be started the planning needs to be made first. Without the planning for the project the result often is not what was requested at the beginning. Therefore it is necessary to define what shall be made in the project and what are the targets of this project to be considered successful. Moreover, an usecase is needed as the project shall bring a benefit for the company or the results and models can be sold to others.
 
-To sum is up this chapter is basis for the project and defines the usecase, the problem which shall be solved in this project and the targets which shall be achieved in order to determine at the end if the project was successful or not.
+To sum it up this chapter is basis for the project and defines the usecase, the problem which shall be solved in this project and the targets which shall be achieved in order to determine at the end if the project was successful or not.
 
 Note: The description in this chapter is without sources for the statements as the target was to describe a fitting "plan" chapter for this project. Some statements wont be applicable, but in the following they will be used as an assumption for the project.
 
@@ -293,7 +295,7 @@ FROM exams_sql
 WHERE math_score > 80;
 ```
 
-Have a look at the obervations of students with more than 90 in reading score
+Have a look at the observations of students with more than 90 in reading score
 
 ```{sql connection=con}
 
@@ -366,7 +368,7 @@ FROM exams_sql
 GROUP BY gender;
 ```
 
-Show all obervations which are parents_education "high_school" and have an average score in exams between 80 and 90. Result shall be ordered descending by avg_exam_score
+Show all observations which are parents_education "high_school" and have an average score in exams between 80 and 90. Result shall be ordered descending by avg_exam_score
 
 ```{sql connection=con}
 
@@ -590,7 +592,7 @@ test_data <- testing(data_split)
 
 ## Analyze data
 
-This chapter had the target to understand the training data and to see which variables have an influence on the outcome variable **avg_score**.
+This chapter has the target to understand the training data and to see which variables have an influence on the outcome variable **avg_score**.
 
 ### Data exploration set
 
@@ -660,7 +662,7 @@ df_explo %>%
 arrange(desc(med_score))
 ```
 
-The `group E` has the best performance in the exams. There is a huge gap compared to `group D`. Moreover there is almost no difference in mean and median between the other three groups. It might make sense to combine there groups into one group. But lets analyse this first in a visualization, because the IQR score is spreading a lot between these groups. For example the difference in the q1 is much higher than in the mean and median.
+The `group E` has the best performance in the exams. There is a huge gap compared to `group D`. Moreover there is almost no difference in mean and median between the other three groups. It might make sense to combine these groups into one group. But lets analyse this first in a visualization, because the IQR score is spreading a lot between these groups. For example the difference in the q1 is much higher than in the mean and median.
 
 Lets have a look on the variable of parents education and sort the results descending.
 
@@ -758,7 +760,7 @@ ggplot(data = df_explo, mapping = aes(x = avg_score)) +
 
 The results are quite similar compared to what was learned in the R queries. Highest density of the average_score is at the median score. There are only a small amount of scores which are below 40.
 
-Now lets have a look on our features. For this use case we only got categorical features in our data set. Therefore lets have a look on their levels and the uniqueness.
+Now lets have a look on our features. For this usecase we only got categorical features in our data set. Therefore lets have a look on their levels and the uniqueness.
 
 ```{r cat_features_bar_plot}
 for (i in features){
@@ -779,9 +781,9 @@ It can be seen that there the variable **gender** is equally distributed on male
 
 The **ethnic group** has the most occurrences within group C, while group A and group E have a smaller occurency. Especially group A has only about 50 occurrences.
 
-Regarding the **parents education**- this feature has six levels which are not equally distributed. Four levels has a almost similar occurrence, while the level Bachelors and Masters degree have the lowest occurrences.
+Regarding the **parents education**- this feature has six levels which are not equally distributed. Four levels have a almost similar occurrence, while the level Bachelors and Masters degree have the lowest occurrences.
 
-The **lunch** type has two levels which are not equally distributed, about 66% occurrences are the standard lunch types, while 33% are the free/reduced type of lunch. This is actually quite a high number of reduced/free lunch meals.
+The **lunch** type has two levels which are not equally distributed, about 66% occurrences are the standard lunch type, while 33% are the free/reduced type of lunch. This is actually quite a high number of reduced/free lunch meals.
 
 The amount of students who performed a **test preparation** course is about 35% while 65% of students did not make any test preparation.
 
@@ -844,7 +846,7 @@ Actually the results from the R queries can be confirmed. Best results are in `g
 
 **Impact parent_education on Avg_score**
 
-This variable in their influence on the average score shall be visualized in a violin plot.
+This variable and their influence on the average score shall be visualized in a violin plot.
 
 ```{r avg_score_parent_edu_violin_plot}
 
@@ -887,7 +889,7 @@ It can be clearly seen that the students who completed the test preparation cour
 
 ### Visualizations (incl. perform results)
 
-This chapter is used to show the possibilities of data visualizations if we could use numeric variables. Therefore plots correlations will be made with those variables - even though they must not be included into the later models.
+This chapter is used to show the possibilities of data visualizations if we could use numeric variables. Therefore correlation plots will be made with those variables - even though they must not be included into the later models.
 
 In order to select the correct visualizations the visualizations are based on [From Data to Viz](https://www.data-to-viz.com)
 
@@ -1003,7 +1005,7 @@ These outliers make it hard for the later model to predict the result correctly.
 
 ## Feature engineering
 
-All topics which were learned/discovered within the earlier steps shall be used now for the data preprocessing and feature engineering. This will be made with data pipelines. Those are generated with the tidymodels package *recipes* and *workflows*. The feature selection part wont be included here, as the features are selected within the modeling part. So the recipe will include all available features for a base model. In the model chapter the Feature Selection will be made with the available packages and tools in R.
+All topics which were learned/discovered within the earlier steps shall be used now for the data preprocessing and feature engineering. This will be made with data pipelines. Those are generated with the tidymodels package *recipes* and *workflows*. The feature selection part wont be included here, as the features are selected within the modeling part (Forward selection in order to determine the best features). So the recipe will include all available features for a base model. In the model chapter the Feature Selection will be made with the available packages and tools in R.
 
 ### Feature transformation
 
@@ -1100,7 +1102,7 @@ cv_folds <-
 
 After the data and features have been preprocessed in a format which is ready for the modeling algorithms, they can be used in the model selection process.
 
-Target for the Model and Deployment phase is to perform all steps in the usual way with tidymodels and afterwards one time by using MLFfow.
+Target for the Model and Deployment phase is to perform all steps in the usual way with tidymodels and afterwards one time by using MLFfow (Sadly it was not possible to get MLflow running, after several days of trying I gave up and decided to move on by deploying the model on a shiny dashboard. Regarding my issues I was in contact via mail with you Jan. Sadly your recommendations were not able to get MLFow running, but thank you very much for your assistance).
 
 ## Select algorithm
 
