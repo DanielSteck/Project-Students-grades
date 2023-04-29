@@ -2064,22 +2064,22 @@ loaded_model <- readRDS( file = "exam_model.rds")
 predict(loaded_model, random_student)
 ```
 
-The result is the same, thats very good. Therefore this saved model can be used within the dashboard.
+The result is the same, that's very good. Therefore this saved model can be used within the dashboard.
 
 **Issues with model deployment in shiny:**
 
-Somehow the loaded model from above is not working in shiny. Even though the recipe is also saved and loaded in that model, it is not applicable in the shiny dashboard, as it is struggling with the workflow and recipe. Here is a second model which was tested and is not working as well. As I kept getting errors
+Somehow the loaded model from above is not working in shiny. Even though the recipe is also saved and loaded in that model, it is not applicable in the shiny dashboard, as it is struggling with the workflow and recipe. Here is a second model which was tested and is not working as well. As I kept getting errors when using it. It is working within this Quarto document. If R was started new, I can load the model (above) and make predictions without any problems. But this is not working in the shiny dashboard as it has issues in working with the workflow operator. Also the saved model below is not working in shiny.
 
 ```{r}
-library(tidyverse)
 # load librarys
-library(shiny)
-library(shinydashboard)
 library(dplyr)
 library(tidyverse)
 library(janitor)
-library(ggplot2)
-library(shinythemes)
+library(tidy.outliers)
+library(recipes)
+library(tidymodels)
+
+# load the dataset and clean up the names plus add the target variable
 path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
 dataset <- read_csv(path, show_col_types = FALSE)
 dataset <- dataset %>% clean_names
@@ -2092,25 +2092,16 @@ dataset$race_ethnicity <- factor(dataset$race_ethnicity)
 dataset$parental_level_of_education <- factor(dataset$parental_level_of_education)
 dataset$lunch <- factor(dataset$lunch)
 dataset$test_preparation_course <- factor(dataset$test_preparation_course)
-
-
-exams <- read_csv(path, show_col_types = FALSE)
-exams <- exams %>% clean_names
-exams <- exams %>% mutate (avg_score = as.numeric((math_score + reading_score + writing_score)/3))
-
 exams <- dataset
 exams <- rename(exams, ethnic_group = race_ethnicity)
 exams <- rename(exams, parent_education = parental_level_of_education)
 exams <- rename(exams, test_prep = test_preparation_course)
 
-library(tidy.outliers)
-library(recipes)
-library(tidymodels)
+
 exam_rec <-
   recipe(avg_score ~ gender  + ethnic_group + parent_education + lunch + test_prep, data = exams) %>%
   step_naomit(everything(), skip = TRUE) %>%
   step_dummy(all_nominal()) 
-
 
 lin_spec_1 <- 
   linear_reg(penalty = 0.1, mixture = 1) %>% 
@@ -2123,8 +2114,12 @@ model <-
   add_recipe(exam_rec) %>%
   add_model(lin_spec_1) %>%
   fit(data = exams)
+
+saveRDS(model, file = "another_attempt.rds")
 ```
 
-```{r}
-print(exams)
-```
+As I was not able to get the loaded model running in Shiny, I used a bridging solution and made the model creation within the Shiny Dashboard code. This is only on short term until I get the issue fixed. Target is to have the model training, creation and validation in another way than the model creation. Especially if more complex models with long training cycles are created. Luckily this model is very fast created, therefore this way works in this case as a bridging solution.
+
+Nevertheless I got my shiny Dashboard running and it is working. Below you can find the QR code in order to get access to it. As I only have the free shiny subscription it might be that me free usage hours are already used. Feel free to contact my, if you have any issues in accessing the board:
+
+![QR-Code for Dashboard & Prediction](Images/qrcode.png)
