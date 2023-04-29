@@ -1,0 +1,146 @@
+---
+title: "Model Card: Prediction of students exam performance"
+date: '`r Sys.Date()`'
+output: 
+  html_document
+params:
+    board: !r pins::model_board
+    name: Daniel Steck
+    version: 1
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(vetiver)
+library(pins)
+library(yardstick)
+knitr::opts_chunk$set(echo = FALSE)
+v <- vetiver_pin_read(model_board, "Prediction_of_exam_score_model_r", version = NULL)
+#v_meta <- pin_meta(params$model_board, params$name)
+theme_set(theme_light())
+```
+
+A [model card](https://doi.org/10.1145/3287560.3287596) provides brief, transparent, responsible reporting for a trained machine learning model.
+
+## Model details
+
+-   Developed by Daniel Steck
+-   `r cli::pluralize("{v$description} using {ncol(v$prototype)} feature{?s}")`
+-   This model was developed within the lecture Programming languages for Data Science.
+    -   This models predicts the average performance of students in an exam based on various generic attributes. Target was to evaluate which attributes have an impact on the performance in exams.
+    -   The following variables are used within the model:
+        -   Gender
+        -   Ethnic group
+        -   The level of education from their parents
+        -   If they have a reduced price for their lunch
+        -   If they have participated in preparation course for their exams
+-   The following steps are included in a workflow for the feature engineering/ data preprocessing:
+    -   Removal of missing values
+    -   One Hot Encoding for the categorical variables
+    -   Removal of outliers
+    -   Removal of correlated features in the model
+-   Version `r v$metadata$version` of this model was published at `r v_meta$created`
+-   Citation and/or license details for the model
+-   If you have questions about this model, please contact [daniel.steck\@lorem-ipsum.de](mailto:daniel.steck@lorem-ipsum.de){.email}
+
+## Intended use
+
+-   The primary intended uses of this model are ...
+-   The primary intended users of this model are ...
+-   Some use cases are out of scope for this model, such as ...
+
+## Important aspects/factors
+
+-   Aspects or factors (demographic, environmental, technical) that are relevant to the context of this model are ...
+-   In evaluating this model, we examined aspects such as ...
+
+## Metrics
+
+-   The metrics used to evaluate this model are:
+
+    -   Root Mean Squared Error (RMSE),
+
+    -   R Squared (RSQ), and
+
+    -   Mean Absolute Error (MAE).
+
+-   These metrics are chosen because they are the most common metrics for assessing the performance of regression models, and that they are well understood by the data science community.
+
+## Training data & evaluation data
+
+-   The training dataset for this model was ...
+
+-   The training dataset for this model has the "prototype" or signature:
+
+    ```{r}
+    glimpse(v$prototype)
+    ```
+
+-   The evaluation dataset used in this model card is ...
+
+-   We chose this evaluation data because ...
+
+```{r}
+## EVALUATION DATA:
+
+data(Sacramento, package = "modeldata")
+
+## consider using a package like skimr or DataExplorer for automated 
+## presentation of evaluation data characteristics
+```
+
+## Quantitative analyses {.tabset}
+
+```{r}
+## compute predictions for your evaluation data
+## load packages needed for prediction:
+library(parsnip)
+library(workflows)
+preds <- augment(v, Sacramento)
+```
+
+### Overall model performance
+
+```{r}
+preds %>%
+    metrics(price, .pred)
+```
+
+### Disaggregated model performance
+
+```{r}
+preds %>%
+    group_by(type) %>%
+    metrics(price, .pred)
+```
+
+### Visualize model performance
+
+```{r, fig.height=3}
+preds %>%
+    ggplot(aes(price, .pred, color = type)) +
+    geom_abline(slope = 1, lty = 2, color = "gray60", size = 1.2) +
+    geom_point(alpha = 0.5, show.legend = FALSE) +
+    facet_wrap(vars(type))
+```
+
+### Make a custom plot
+
+```{r}
+preds %>%
+    mutate(.resid = price - .pred) %>%
+    ggplot(aes(longitude, latitude, color = .resid)) +
+    geom_point(alpha = 0.8) +
+    scale_color_gradient2() +
+    coord_fixed()
+```
+
+## Ethical considerations
+
+-   We considered ...
+
+## Caveats & recommendations
+
+-   This model does ...
+-   This model does not ...
+-   We recommend ...
