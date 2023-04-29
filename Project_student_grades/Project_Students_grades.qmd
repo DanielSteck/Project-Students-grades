@@ -2193,3 +2193,13 @@ Nevertheless I got my shiny Dashboard running and it is working. Below you can f
 ![QR-Code for Dashboard & Prediction](Images/qrcode.png)
 
 # Summary
+
+Within this project our company was able to show our skills regarding data science and a lot of different knowledge was presented. Probably the costumer is no longer skeptical and will hire us in the future. All questions regarding the data were answered within querys as well in SQL as in R. Moreover, in the data visualization a lot was learned from the data and this knowledge was used within the modeling section. Regarding the modeling a lot of different techniques were used: Tidy outliners, preprocessing within recipes, different models and algorithms, feature selection, hyperparameter tuning and the interpretation of the results.
+
+The best model was used for a final fit on all data in order to have it ready for deployment. The model was deployed in ventiver and in an interactive shiny dashboard. This shiny dashboard is a great tool to play around with the data and get model predictions.
+
+Sadly the project targets from the plan chapter were not fulfilled. The created models are worse than the set target. But it was seen that all models were optimized and struggling to get below a RSME value of 12. Thats why I assume the only categorical inputs are not containing further information and the models can not be improved (at least not much). Not only the external characteristics of students determine their performance in exams. Also aspects as talent, motivation are important aspects for their performance. To come to this result is important as not only external factors do affect the performance of students. But these external characteristics lead to a noticeable impact on the average and median scores of the students.
+
+But it has to be mentioned that the created models are all better than a simple model which is only predicting the mean value. This means that the models are able to detect some patterns in the data. With this result the project can be considered as parially successful. On the one hand the failure in achieving the the performance in the metrics lead to a failure of the project. But on the other hand the learnings with the data, that the model is better than the mean and the great visualization dashboard which also included the model prediction lead to a successful project. The costumer will benefit a lot from these results as well as from the dashboard.
+
+Even though not all targets were achieved, the most important one was achieved, to make our costumer happy with the results of our work :)
