@@ -1045,11 +1045,11 @@ In the following pipeline all steps for the feature engineering are included:
 
 ```{r get_tidy_outliers}
 #devtools::install_github("brunocarlin/tidy.outliers") 
-library(tidy.outliers)
+
 ```
 
 ```{r pipeline}
-
+library(tidy.outliers)
 library(recipes)
 exam_rec <-
   recipe(avg_score ~ +gender  + ethnic_group + parent_education + lunch + test_prep, data = train_data) %>% #definition of features and target variable
@@ -2065,3 +2065,66 @@ predict(loaded_model, random_student)
 ```
 
 The result is the same, thats very good. Therefore this saved model can be used within the dashboard.
+
+**Issues with model deployment in shiny:**
+
+Somehow the loaded model from above is not working in shiny. Even though the recipe is also saved and loaded in that model, it is not applicable in the shiny dashboard, as it is struggling with the workflow and recipe. Here is a second model which was tested and is not working as well. As I kept getting errors
+
+```{r}
+library(tidyverse)
+# load librarys
+library(shiny)
+library(shinydashboard)
+library(dplyr)
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+library(shinythemes)
+path <- "https://raw.githubusercontent.com/DanielSteck/Project-Students-grades/main/exams.csv"
+dataset <- read_csv(path, show_col_types = FALSE)
+dataset <- dataset %>% clean_names
+dataset <- dataset %>% mutate (avg_score = (math_score + reading_score + writing_score)/3)
+
+#change cloumns from categorical to factor:
+
+dataset$gender <- factor(dataset$gender)
+dataset$race_ethnicity <- factor(dataset$race_ethnicity)
+dataset$parental_level_of_education <- factor(dataset$parental_level_of_education)
+dataset$lunch <- factor(dataset$lunch)
+dataset$test_preparation_course <- factor(dataset$test_preparation_course)
+
+
+exams <- read_csv(path, show_col_types = FALSE)
+exams <- exams %>% clean_names
+exams <- exams %>% mutate (avg_score = as.numeric((math_score + reading_score + writing_score)/3))
+
+exams <- dataset
+exams <- rename(exams, ethnic_group = race_ethnicity)
+exams <- rename(exams, parent_education = parental_level_of_education)
+exams <- rename(exams, test_prep = test_preparation_course)
+
+library(tidy.outliers)
+library(recipes)
+library(tidymodels)
+exam_rec <-
+  recipe(avg_score ~ gender  + ethnic_group + parent_education + lunch + test_prep, data = exams) %>%
+  step_naomit(everything(), skip = TRUE) %>%
+  step_dummy(all_nominal()) 
+
+
+lin_spec_1 <- 
+  linear_reg(penalty = 0.1, mixture = 1) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("regression") 
+
+
+model <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(lin_spec_1) %>%
+  fit(data = exams)
+```
+
+```{r}
+print(exams)
+```

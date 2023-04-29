@@ -20,22 +20,46 @@ dataset$parental_level_of_education <- factor(dataset$parental_level_of_educatio
 dataset$lunch <- factor(dataset$lunch)
 dataset$test_preparation_course <- factor(dataset$test_preparation_course)
 
+# This section is added as a bridgin solution as the loaded model (inkl. recipe) can not be read in this dashboard
+#________________________________________________________________________________________________________
+exams <- dataset
+exams <- rename(exams, ethnic_group = race_ethnicity)
+exams <- rename(exams, parent_education = parental_level_of_education)
+exams <- rename(exams, test_prep = test_preparation_course)
 
+library(tidy.outliers)
+library(recipes)
+library(tidymodels)
+exam_rec <-
+  recipe(avg_score ~ gender  + ethnic_group + parent_education + lunch + test_prep, data = exams) %>%
+  step_naomit(everything(), skip = TRUE) %>%
+  step_dummy(all_nominal()) 
+
+lin_spec_1 <- 
+  linear_reg(penalty = 0.1, mixture = 1) %>% 
+  set_engine("glmnet") %>% 
+  set_mode("regression") 
+
+
+model <-
+  workflow() %>%
+  add_recipe(exam_rec) %>%
+  add_model(lin_spec_1) %>%
+  fit(data = exams)
+# end of bridging solution
+#____________________________________________________________________________________________
 
 # load the model
 loaded_model <- readRDS(file = "exam_model.rds")
 
-
 # define ui
 ui <- dashboardPage(
-  
   
   # Title of dashboard
   dashboardHeader(title= "Exam data visualization"),
   
   # Content in sidebar  
   dashboardSidebar(
-    
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
       #menuItem("Widgets", tabName = "widgets", icon = icon("th")),
@@ -206,8 +230,7 @@ ui <- dashboardPage(
                           br(),
                           h2("Predict the exam score of a student"),
                           br(),
-                          
-                          
+                        
                         ),
                         fluidRow(
                           column(9,
@@ -226,10 +249,6 @@ ui <- dashboardPage(
                                                  #title = "Histogram of predicted exam scores", status = "primary", solidHeader = TRUE, collapsible =TRUE,
                                                  #plotOutput("his_prediction", height = 450),
                                                  h4("Selected Values"),
-                                                 
-                                                 
-                                                 
-                                                 
                                                  textOutput("selected_input_gender"),
                                                  textOutput("selected_input_ethnicity"),
                                                  textOutput("selected_input_education"),
@@ -258,18 +277,14 @@ ui <- dashboardPage(
 
 # define the server, app contains of ui and server
 server <- function(input, output) {
-  
-
   # Histogram of average exam scores  
   output$hist_plot_score <- renderPlot({
     # x shall be the amount of collected students
     x    <- dataset$avg_score[seq_len(input$slider)]
     bins <- 10 
-    
     hist(x, breaks = bins, col = "#007bc2", border = "white",
          xlab = "Average score in exam",
          main = "Histogram of average score in exam")
-    
   })
   # Boxplot for selected variable
   output$box_plot <- renderPlot({
@@ -317,7 +332,6 @@ server <- function(input, output) {
       theme_minimal()+
       theme (text = element_text(size=15),
              legend.key.size = unit(10, "mm"))
-    
   })
   # Print out which variable was selected as color in the dense plot
   output$selected_var2 <- renderText({ 
@@ -347,7 +361,7 @@ server <- function(input, output) {
     new_Data <- random_student()
     
     # Make a prediction on the new data using the loaded model
-    prediction <- predict(loaded_model, new_Data)
+    prediction <- predict(model, new_Data)
     
     # Return the predicted value
     return(prediction)
@@ -361,9 +375,6 @@ server <- function(input, output) {
   output$prediction <- renderText({
     paste("The model prediction is:", round(predicted_value(), 2))
   })
-  
-  
-
   
   output$prediction <- renderText({
     paste("The model prediction is:", round(predicted_value(), 2))
@@ -388,7 +399,6 @@ server <- function(input, output) {
   output$selected_input_test_prep <- renderText({ 
     paste("Selected as test preparation course:", input$model_input_test_prep)
   })
-  
   
 }
 
